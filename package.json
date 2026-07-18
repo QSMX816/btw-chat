@@ -14,9 +14,8 @@
     "preview": "vite preview",
     "icon": "node scripts/icon-gen.mjs",
     "dist": "npm run build && electron-builder --win",
-    "dist:portable": "npm run build && electron-builder --win portable",
     "dist:linux": "npm run build && electron-builder --linux",
-    "dist:arch": "npm run build && electron-builder --linux pacman AppImage"
+    "dist:all": "npm run build && electron-builder --win nsis && electron-builder --linux deb AppImage tar.gz"
   },
   "build": {
     "appId": "com.btw.chat",
@@ -33,15 +32,9 @@
           "arch": [
             "x64"
           ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
         }
       ],
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "BTW-Chat-${version}-windows-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -55,23 +48,17 @@
       "category": "Utility",
       "maintainer": "BTW",
       "target": [
-        "pacman",
+        "deb",
         "AppImage",
         "tar.gz"
       ],
+      "artifactName": "BTW-Chat-${version}-linux-${arch}.${ext}",
       "desktop": {
         "Name": "BTW Chat",
         "Comment": "AI chat with a by-the-way split panel",
         "Categories": "Utility;Network;Chat;",
         "Terminal": "false"
       }
-    },
-    "pacman": {
-      "fpm": [
-        "--name=btw-chat",
-        "--maintainer=BTW",
-        "--url=https://github.com/QSMX816/btw-chat"
-      ]
     },
     "files": [
       "dist/**/*",

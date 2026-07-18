@@ -25,7 +25,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
 
   return (
     <div className={`msg-row ${message.role}`}>
-      <div style={{ display: 'flex', gap: 10, maxWidth: '100%', flexDirection: isUser ? 'row-reverse' : 'row' }}>
+      <div style={{ display: 'flex', gap: 10, width: '100%', flexDirection: isUser ? 'row-reverse' : 'row' }}>
         <div className={`msg-avatar ${isUser ? 'user' : 'ai'}`}>
           {isUser ? '我' : 'BTW'}
         </div>
