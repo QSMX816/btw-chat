@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=BTW Chat
+GenericName=AI Chat
+Comment=AI chat with a by-the-way (BTW) split panel
+Comment[zh_CN]=带「顺便问一下」分支对话的 AI 聊天工具
+Exec=/usr/bin/btw-chat %U
+Icon=btw-chat
+Terminal=false
+Categories=Utility;Network;Chat;
+StartupWMClass=BTW Chat
+Keywords=ai;chat;llm;btw;gpt;claude;gemini;

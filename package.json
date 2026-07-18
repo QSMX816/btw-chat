@@ -1,0 +1,107 @@
+{
+  "name": "btw-chat",
+  "version": "1.0.0",
+  "description": "BTW Chat — AI chat with a by-the-way split panel, glass UI",
+  "author": "BTW",
+  "homepage": "https://github.com/QSMX816/btw-chat",
+  "license": "MIT",
+  "main": "dist-electron/electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:vite\" \"npm:dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on tcp:5173 && tsc -p electron/tsconfig.json && cross-env NODE_ENV=development electron .",
+    "build": "tsc -p electron/tsconfig.json && vite build",
+    "preview": "vite preview",
+    "icon": "node scripts/icon-gen.mjs",
+    "dist": "npm run build && electron-builder --win",
+    "dist:portable": "npm run build && electron-builder --win portable",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "dist:arch": "npm run build && electron-builder --linux pacman AppImage"
+  },
+  "build": {
+    "appId": "com.btw.chat",
+    "productName": "BTW Chat",
+    "directories": {
+      "output": "release"
+    },
+    "icon": "build/icon.png",
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BTW Chat"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Utility",
+      "maintainer": "BTW",
+      "target": [
+        "pacman",
+        "AppImage",
+        "tar.gz"
+      ],
+      "desktop": {
+        "Name": "BTW Chat",
+        "Comment": "AI chat with a by-the-way split panel",
+        "Categories": "Utility;Network;Chat;",
+        "Terminal": "false"
+      }
+    },
+    "pacman": {
+      "fpm": [
+        "--name=btw-chat",
+        "--maintainer=BTW",
+        "--url=https://github.com/QSMX816/btw-chat"
+      ]
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ]
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "highlight.js": "^11.10.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "rehype-highlight": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "uuid": "^10.0.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.0.1",
+    "cross-env": "^7.0.3",
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5",
+    "sharp": "^0.35.3",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "wait-on": "^8.0.1"
+  }
+}

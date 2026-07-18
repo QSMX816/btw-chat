@@ -1,0 +1,6 @@
+# 跨平台统一换行
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.icns binary
+*.zip binary

@@ -1,0 +1,136 @@
+/* ============ 主题定义 —— 每个主题定义 CSS 变量 ============ */
+/* 模仿 Apple 美学：柔和渐变背景、高饱和点缀色、毛玻璃/液态玻璃 */
+
+:root {
+  --bg-deg: 135deg;
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-blur: 28px;
+  --glass-saturate: 1.8;
+
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(60, 60, 67, 0.66);
+  --text-tertiary: rgba(60, 60, 67, 0.4);
+
+  --accent: #007aff;
+  --accent-2: #5856d6;
+  --accent-grad: linear-gradient(135deg, #007aff, #5856d6);
+
+  --bg-1: #e8ecf8;
+  --bg-2: #f5f0fb;
+  --bg-3: #eef3fa;
+  --bg-image: radial-gradient(at 0% 0%, var(--bg-1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, var(--bg-2) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, var(--bg-3) 0px, transparent 50%);
+
+  --bubble-user: linear-gradient(135deg, #007aff, #5856d6);
+  --bubble-assistant: rgba(255, 255, 255, 0.7);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.16);
+
+  --tag-bg: rgba(0, 122, 255, 0.12);
+  --tag-text: #007aff;
+
+  --danger: #ff3b30;
+  --success: #34c759;
+  --warning: #ff9500;
+}
+
+/* —— Aurora 极光（默认）：青紫蓝渐变 —— */
+[data-theme='aurora'] {
+  --accent: #0a84ff;
+  --accent-2: #bf5af2;
+  --accent-grad: linear-gradient(135deg, #0a84ff, #bf5af2);
+  --bg-1: #5b8cff;
+  --bg-2: #c4a0ff;
+  --bg-3: #6fd6ff;
+  --bubble-user: linear-gradient(135deg, #0a84ff, #bf5af2);
+  --tag-bg: rgba(10, 132, 255, 0.14);
+  --tag-text: #0a6fff;
+}
+
+/* —— Sunset 日落：橙粉紫 —— */
+[data-theme='sunset'] {
+  --accent: #ff6b6b;
+  --accent-2: #ffa45c;
+  --accent-grad: linear-gradient(135deg, #ff6b6b, #ffa45c, #ff8fab);
+  --bg-1: #ffb088;
+  --bg-2: #ff9aa8;
+  --bg-3: #ffd089;
+  --bubble-user: linear-gradient(135deg, #ff6b6b, #ff8e72);
+  --tag-bg: rgba(255, 107, 107, 0.16);
+  --tag-text: #e8505b;
+}
+
+/* —— Ocean 海洋：蓝青绿 —— */
+[data-theme='ocean'] {
+  --accent: #00c6ff;
+  --accent-2: #0072ff;
+  --accent-grad: linear-gradient(135deg, #00c6ff, #0072ff);
+  --bg-1: #4facfe;
+  --bg-2: #00c6fb;
+  --bg-3: #43e97b;
+  --bubble-user: linear-gradient(135deg, #0072ff, #00c6ff);
+  --tag-bg: rgba(0, 114, 255, 0.14);
+  --tag-text: #0066d6;
+}
+
+/* —— Midnight 午夜：深色 —— */
+[data-theme='midnight'] {
+  --accent: #5e5ce6;
+  --accent-2: #bf5af2;
+  --accent-grad: linear-gradient(135deg, #5e5ce6, #bf5af2);
+  --bg-1: #1a1a2e;
+  --bg-2: #16213e;
+  --bg-3: #2d1b4e;
+  --glass-bg: rgba(40, 40, 60, 0.5);
+  --glass-bg-strong: rgba(45, 45, 70, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --text-primary: #f5f5f7;
+  --text-secondary: rgba(235, 235, 245, 0.66);
+  --text-tertiary: rgba(235, 235, 245, 0.38);
+  --bubble-user: linear-gradient(135deg, #5e5ce6, #bf5af2);
+  --bubble-assistant: rgba(255, 255, 255, 0.08);
+  --tag-bg: rgba(126, 122, 255, 0.22);
+  --tag-text: #b8b4ff;
+}
+
+/* —— Forest 森林：墨绿薄荷 —— */
+[data-theme='forest'] {
+  --accent: #2ecc71;
+  --accent-2: #16a085;
+  --accent-grad: linear-gradient(135deg, #2ecc71, #16a085);
+  --bg-1: #a8e6cf;
+  --bg-2: #88d8b0;
+  --bg-3: #dcedc1;
+  --bubble-user: linear-gradient(135deg, #16a085, #2ecc71);
+  --tag-bg: rgba(46, 204, 113, 0.16);
+  --tag-text: #178a4f;
+}
+
+/* —— Rose 玫瑰：粉红暖调 —— */
+[data-theme='rose'] {
+  --accent: #ff5f87;
+  --accent-2: #ff8fa3;
+  --accent-grad: linear-gradient(135deg, #ff5f87, #c44569);
+  --bg-1: #ffd6e8;
+  --bg-2: #ffb3c6;
+  --bg-3: #ffe0e9;
+  --bubble-user: linear-gradient(135deg, #ff5f87, #c44569);
+  --tag-bg: rgba(255, 95, 135, 0.16);
+  --tag-text: #d63d68;
+}
+
+/* —— 深色模式覆写（非 midnight 主题切到 dark 时）—— */
+[data-mode='dark']:not([data-theme='midnight']) {
+  --glass-bg: rgba(36, 36, 48, 0.55);
+  --glass-bg-strong: rgba(42, 42, 58, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --text-primary: #f5f5f7;
+  --text-secondary: rgba(235, 235, 245, 0.66);
+  --text-tertiary: rgba(235, 235, 245, 0.38);
+  --bubble-assistant: rgba(255, 255, 255, 0.07);
+}

@@ -1,0 +1,59 @@
+# Maintainer: BTW <noreply@example.com>
+# BTW Chat — AI chat with a by-the-way split panel (prebuilt binary package)
+#
+# 本地用法：
+#   1. cp release/btw-chat-1.0.0.tar.gz arch/
+#   2. cp build/icon.png arch/icon.png
+#   3. cd arch && makepkg -si
+# 发布到 AUR 后，把 source() 里的两个本地文件改成 GitHub Releases URL 即可。
+
+pkgname=btw-chat
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="AI chat with a by-the-way (BTW) split panel, multi-provider, glass UI"
+arch=('x86_64')
+url="https://github.com/QSMX816/btw-chat"
+license=('MIT')
+depends=('alsa-lib' 'atk' 'cairo' 'dbus' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2'
+         'gtk3' 'hicolor-icon-theme' 'libcups' 'libxcomposite' 'libxdamage'
+         'libxrandr' 'libxss' 'libxtst' 'nss' 'pango')
+provides=('btw-chat')
+conflicts=('btw-chat')
+
+source=("btw-chat-${pkgver}.tar.gz"
+        "icon.png"
+        "btw-chat.desktop")
+# 发布到 AUR 后改用（取消注释，删除上面三行）：
+# source=("${url}/releases/download/v${pkgver}/btw-chat-${pkgver}.tar.gz"
+#         "${url}/releases/download/v${pkgver}/icon.png"
+#         "${url}/releases/download/v${pkgver}/btw-chat.desktop")
+sha256sums=('22a9c29a0012836a200560139e6201024861d482a5082958a846dd786982ceb5'
+            'SKIP'
+            'SKIP')
+
+package() {
+    local appdir="${pkgdir}/opt/${pkgname}"
+    install -dM755 "${appdir}"
+
+    # 运行时拷进 /opt/btw-chat
+    cp -a "${srcdir}/btw-chat-${pkgver}/." "${appdir}/"
+
+    # Electron 沙箱需要 setuid
+    chmod 4755 "${appdir}/chrome-sandbox" 2>/dev/null || true
+
+    # /usr/bin 软链
+    install -dM755 "${pkgdir}/usr/bin"
+    ln -s "/opt/${pkgname}/${pkgname}" "${pkgdir}/usr/bin/${pkgname}"
+
+    # 图标
+    install -Dm644 "${srcdir}/icon.png" \
+        "${pkgdir}/usr/share/icons/hicolor/256x256/apps/${pkgname}.png"
+
+    # .desktop
+    install -Dm644 "${srcdir}/btw-chat.desktop" \
+        "${pkgdir}/usr/share/applications/${pkgname}.desktop"
+
+    # LICENSE
+    install -Dm644 "${srcdir}/btw-chat-${pkgver}/LICENSE" \
+        "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE" 2>/dev/null || true
+}
