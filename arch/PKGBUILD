@@ -2,10 +2,10 @@
 # BTW Chat — AI chat with a by-the-way split panel (prebuilt binary package)
 #
 # 本地用法：
-#   1. cp release/btw-chat-1.0.0.tar.gz arch/
+#   1. cp release/BTW-Chat-1.0.0-linux-x64.tar.gz arch/
 #   2. cp build/icon.png arch/icon.png
 #   3. cd arch && makepkg -si
-# 发布到 AUR 后，把 source() 里的两个本地文件改成 GitHub Releases URL 即可。
+# 发布到 AUR 后，把 source() 里的本地文件改成 GitHub Releases URL 即可（见下方注释）。
 
 pkgname=btw-chat
 pkgver=1.0.0
@@ -20,14 +20,14 @@ depends=('alsa-lib' 'atk' 'cairo' 'dbus' 'desktop-file-utils' 'gdk-pixbuf2' 'gli
 provides=('btw-chat')
 conflicts=('btw-chat')
 
-source=("btw-chat-${pkgver}.tar.gz"
+source=("BTW-Chat-${pkgver}-linux-x64.tar.gz"
         "icon.png"
         "btw-chat.desktop")
 # 发布到 AUR 后改用（取消注释，删除上面三行）：
-# source=("${url}/releases/download/v${pkgver}/btw-chat-${pkgver}.tar.gz"
+# source=("${url}/releases/download/v${pkgver}/BTW-Chat-${pkgver}-linux-x64.tar.gz"
 #         "${url}/releases/download/v${pkgver}/icon.png"
 #         "${url}/releases/download/v${pkgver}/btw-chat.desktop")
-sha256sums=('22a9c29a0012836a200560139e6201024861d482a5082958a846dd786982ceb5'
+sha256sums=('6a4703faae1c1898a879e10e17c804c024e9963d7c3b6279be6616ceb4a93a31'
             'SKIP'
             'SKIP')
 
@@ -35,8 +35,8 @@ package() {
     local appdir="${pkgdir}/opt/${pkgname}"
     install -dM755 "${appdir}"
 
-    # 运行时拷进 /opt/btw-chat
-    cp -a "${srcdir}/btw-chat-${pkgver}/." "${appdir}/"
+    # 运行时拷进 /opt/btw-chat（解压目录名与发布包一致）
+    cp -a "${srcdir}/BTW-Chat-${pkgver}-linux-x64/." "${appdir}/"
 
     # Electron 沙箱需要 setuid
     chmod 4755 "${appdir}/chrome-sandbox" 2>/dev/null || true
@@ -54,6 +54,6 @@ package() {
         "${pkgdir}/usr/share/applications/${pkgname}.desktop"
 
     # LICENSE
-    install -Dm644 "${srcdir}/btw-chat-${pkgver}/LICENSE" \
+    install -Dm644 "${srcdir}/BTW-Chat-${pkgver}-linux-x64/LICENSE" \
         "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE" 2>/dev/null || true
 }
