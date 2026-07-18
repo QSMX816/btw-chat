@@ -1,6 +1,6 @@
 {
   "name": "btw-chat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BTW Chat — AI chat with a by-the-way split panel, glass UI",
   "author": "BTW",
   "homepage": "https://github.com/QSMX816/btw-chat",
@@ -68,11 +68,14 @@
   "dependencies": {
     "electron-store": "^8.2.0",
     "highlight.js": "^11.10.0",
+    "katex": "^0.16.47",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
     "rehype-highlight": "^7.0.0",
+    "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0",
     "uuid": "^10.0.0",
     "zustand": "^4.5.5"
   },

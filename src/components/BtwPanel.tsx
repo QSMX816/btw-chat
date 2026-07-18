@@ -2,13 +2,18 @@ import React from 'react';
 import { useChat } from '../stores/conversations';
 import { MessageBubble } from './MessageBubble';
 import { Composer } from './Composer';
-import { CloseIcon, ChatIcon } from './Icons';
+import { CloseIcon, ChatIcon, ChevronDown } from './Icons';
+import { useFollowScroll } from '../hooks/useFollowScroll';
 
 export const BtwPanel: React.FC = () => {
-  const { openBtwId, active, closeBtw } = useChat();
-  if (!openBtwId || !active) return null;
-  const btw = active.btwConversations.find((b) => b.id === openBtwId);
-  if (!btw) return null;
+  const { openBtwId, active, streaming, closeBtw } = useChat();
+  const btw = openBtwId && active ? active.btwConversations.find((b) => b.id === openBtwId) : undefined;
+  const { ref, onScroll, jump, showJump } = useFollowScroll({
+    messages: btw?.messages ?? [],
+    streaming,
+    convId: btw?.id,
+  });
+  if (!openBtwId || !active || !btw) return null;
 
   const anchorMsg = active.messages.find((m) => m.id === btw.anchorMessageId);
 
@@ -26,7 +31,7 @@ export const BtwPanel: React.FC = () => {
         </button>
       </div>
 
-      <div className="btw-messages">
+      <div className="btw-messages" ref={ref} onScroll={onScroll}>
         {btw.messages.length === 0 && (
           <div className="empty-state" style={{ padding: 20 }}>
             <div className="empty-logo" style={{ width: 48, height: 48, fontSize: 20, borderRadius: 16 }}>💬</div>
@@ -39,6 +44,12 @@ export const BtwPanel: React.FC = () => {
           <MessageBubble key={m.id} message={m} isBtw />
         ))}
       </div>
+
+      {showJump && (
+        <button className="jump-fab btw" title="回到底部" onClick={jump}>
+          <ChevronDown size={16} />
+        </button>
+      )}
 
       <Composer variant="btw" btwId={btw.id} />
     </aside>

@@ -12,6 +12,10 @@
 
 :root {
   font-size: calc(15px * var(--font-scale, 1));
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI',
+    'SF Pro Text', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Cascadia Mono', 'SF Mono', Menlo,
+    Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Courier New', monospace;
 }
 
 html,
@@ -22,8 +26,7 @@ body,
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC',
-    'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-sans);
   color: var(--text-primary);
   background: transparent;
   user-select: none;
@@ -506,6 +509,39 @@ body {
   gap: 18px;
 }
 
+/* 「回到底部」浮动按钮：用户往上滚后出现 */
+.jump-fab {
+  position: absolute;
+  right: 26px;
+  bottom: 104px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(14px) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(14px) saturate(var(--glass-saturate));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
+  z-index: 20;
+  transition: transform 0.15s, color 0.15s, opacity 0.15s;
+  animation: fadeIn 0.18s;
+}
+.jump-fab:hover {
+  transform: translateY(-2px);
+  color: var(--text-primary);
+}
+.jump-fab.btw {
+  right: 14px;
+  bottom: 88px;
+  width: 34px;
+  height: 34px;
+}
+
 .msg-row {
   display: flex;
   padding: 0 28px;
@@ -751,6 +787,7 @@ body {
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   flex-shrink: 0;
+  position: relative;
   animation: btwIn 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
 @keyframes btwIn {
@@ -943,7 +980,7 @@ body {
   border-color: var(--accent);
 }
 .field-input.mono {
-  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 12.5px;
 }
 
@@ -1144,7 +1181,7 @@ body {
   padding: 2px 6px;
   border-radius: 5px;
   font-size: 0.88em;
-  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-family: var(--font-mono);
 }
 [data-mode='dark'] .markdown code:not(pre code),
 [data-theme='midnight'] .markdown code:not(pre code) {
@@ -1164,7 +1201,7 @@ body {
 .markdown pre code {
   display: block;
   padding: 14px 16px;
-  font-family: 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.6;
   overflow-x: auto;
@@ -1208,7 +1245,7 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 11px;
   color: rgba(230, 237, 243, 0.6);
-  font-family: 'SF Mono', Menlo, monospace;
+  font-family: var(--font-mono);
 }
 .copy-btn {
   border: none;

@@ -1,26 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useChat } from '../stores/conversations';
 import { useConfig } from '../stores/config';
 import { MessageBubble } from './MessageBubble';
 import { Composer } from './Composer';
 import { SparkleIcon, ChevronDown, BrainIcon, GlobeIcon, RefreshIcon, CheckIcon } from './Icons';
 import { Logo } from './Logo';
+import { useFollowScroll } from '../hooks/useFollowScroll';
 import { Provider, ModelConfig } from '../types';
 
 export const ChatPanel: React.FC = () => {
   const { active, streaming, regenerateLast } = useChat();
   const { providers, settings, setActiveModel, getActiveProvider, getActiveModel } = useConfig();
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
 
   const provider = getActiveProvider();
   const model = getActiveModel();
 
-  // 自动滚动到底
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [active?.messages, streaming]);
+  const { ref: scrollRef, onScroll, jump, showJump } = useFollowScroll({
+    messages: active?.messages ?? [],
+    streaming,
+    convId: active?.id,
+  });
 
   if (!active) {
     return (
@@ -78,7 +78,7 @@ export const ChatPanel: React.FC = () => {
         )}
       </div>
 
-      <div className="messages" ref={scrollRef}>
+      <div className="messages" ref={scrollRef} onScroll={onScroll}>
         {active.messages.length === 0 ? (
           <div className="empty-state">
             <Logo size={72} />
@@ -104,6 +104,12 @@ export const ChatPanel: React.FC = () => {
           active.messages.map((m) => <MessageBubble key={m.id} message={m} />)
         )}
       </div>
+
+      {showJump && (
+        <button className="jump-fab" title="回到底部" onClick={jump}>
+          <ChevronDown size={18} />
+        </button>
+      )}
 
       <Composer variant="main" />
     </main>
