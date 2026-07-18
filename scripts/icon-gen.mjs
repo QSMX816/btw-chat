@@ -63,7 +63,10 @@ function makeSvg(size) {
 
 async function renderPng(size) {
   const svg = Buffer.from(makeSvg(size));
-  return sharp(svg, { density: 384 }).png().toBuffer();
+  // 不要传 density：SVG 自带 width/height，density 会被按 384/72≈5.33x 放大，
+  // 导致 renderPng(512) 实际输出 2731x2731，被 electron-builder 原样放进
+  // hicolor/2731x2731/ —— GNOME/KDE 只认标准尺寸目录，图标就不显示了。
+  return sharp(svg).png().toBuffer();
 }
 
 // 渲染某个尺寸的原始 RGBA（先按 1024 渲染再缩放到精确目标尺寸）

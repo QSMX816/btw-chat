@@ -34,8 +34,11 @@ export async function streamGoogle(
   const model = provider.models.find((m) => m.id === req.modelId);
   const generationConfig: Record<string, unknown> = {
     temperature: req.temperature ?? 0.7,
-    maxOutputTokens: req.maxTokens || 4096,
   };
+  // maxTokens = 0 表示不限：不传 maxOutputTokens，让模型用默认上限
+  if (req.maxTokens && req.maxTokens > 0) {
+    generationConfig.maxOutputTokens = req.maxTokens;
+  }
   if (model?.supportsThinking) {
     generationConfig.thinkingConfig = { includeThoughts: true };
   }

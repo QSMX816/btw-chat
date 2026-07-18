@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useChat } from '../stores/conversations';
 import { useConfig } from '../stores/config';
 import { MessageBubble } from './MessageBubble';
@@ -6,6 +6,7 @@ import { Composer } from './Composer';
 import { SparkleIcon, ChevronDown, BrainIcon, GlobeIcon, RefreshIcon, CheckIcon } from './Icons';
 import { Logo } from './Logo';
 import { useFollowScroll } from '../hooks/useFollowScroll';
+import { estimateConversationTokens } from '../utils/tokens';
 import { Provider, ModelConfig } from '../types';
 
 export const ChatPanel: React.FC = () => {
@@ -15,6 +16,13 @@ export const ChatPanel: React.FC = () => {
 
   const provider = getActiveProvider();
   const model = getActiveModel();
+
+  // 实时 token 估算（含思考过程）。主聊天流式输出时 messages 数组每 token 更新，这里随之刷新。
+  const tokenCount = useMemo(
+    () => (active ? estimateConversationTokens(active.messages, settings.systemPrompt) : 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [active?.messages, settings.systemPrompt]
+  );
 
   const { ref: scrollRef, onScroll, jump, showJump } = useFollowScroll({
     messages: active?.messages ?? [],
@@ -34,6 +42,18 @@ export const ChatPanel: React.FC = () => {
     <main className="chat-area glass">
       <div className="chat-toolbar">
         <div className="chat-toolbar-title">{active.title}</div>
+
+        {/* 实时 token 统计 */}
+        {active.messages.length > 0 && (
+          <span
+            className="toolbar-pill"
+            style={{ cursor: 'default', opacity: 0.9 }}
+            title="当前对话估算 token 数（含思考过程），仅为近似值"
+          >
+            ~{tokenCount.toLocaleString()}
+            {model?.contextWindow ? ` / ${(model.contextWindow / 1000).toFixed(0)}k` : ''} tok
+          </span>
+        )}
 
         {/* 模型选择 */}
         <div style={{ position: 'relative' }}>

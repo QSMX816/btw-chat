@@ -10,7 +10,7 @@ interface StoreSchema {
 
 // 内置模型默认值的版本；每次更新默认模型列表就 +1，
 // 触发一次性迁移：内置提供商刷新成最新模型，保留用户的 Key/开关/自定义。
-const CONFIG_VERSION = 2;
+const CONFIG_VERSION = 3;
 
 const store = new Store<StoreSchema>({
   defaults: {
@@ -123,7 +123,7 @@ export function defaultSettings(): Settings {
     sendOnEnter: true,
     streamResponses: true,
     temperature: 0.7,
-    maxTokens: 4096,
+    maxTokens: 0,
     systemPrompt: '',
   };
 }
@@ -161,24 +161,43 @@ function fixActiveModel(providers: Provider[], settings: Settings): Settings {
   return settings;
 }
 
+// 一次性迁移：根据 configVersion 增量升级 providers 与 settings
+function runMigrations() {
+  const version = store.get('configVersion') ?? 1;
+  if (version >= CONFIG_VERSION) return;
+
+  if (version < 2) {
+    store.set('providers', migrateProviders(store.get('providers')));
+  }
+
+  const settings = store.get('settings');
+  if (version < 3) {
+    // v3：maxTokens 默认改为"不限"（0）。旧版默认 4096 的用户一并切到不限；
+    // 用户若自己设过别的值则保留。
+    if (!settings.maxTokens || settings.maxTokens === 4096) {
+      settings.maxTokens = 0;
+    }
+  }
+  store.set('settings', settings);
+
+  const providers = store.get('providers');
+  store.set('settings', fixActiveModel(providers, store.get('settings')));
+  store.set('configVersion', CONFIG_VERSION);
+}
+
 export function registerConfigHandlers() {
   ipcMain.handle(IPC.GET_PROVIDERS, () => {
-    const version = store.get('configVersion') ?? 1;
-    if (version < CONFIG_VERSION) {
-      const migrated = migrateProviders(store.get('providers'));
-      store.set('providers', migrated);
-      const settings = fixActiveModel(migrated, store.get('settings'));
-      store.set('settings', settings);
-      store.set('configVersion', CONFIG_VERSION);
-      return migrated;
-    }
+    runMigrations();
     return store.get('providers');
   });
   ipcMain.handle(IPC.SAVE_PROVIDERS, (_e, providers: Provider[]) => {
     store.set('providers', providers);
     return true;
   });
-  ipcMain.handle(IPC.GET_SETTINGS, () => store.get('settings'));
+  ipcMain.handle(IPC.GET_SETTINGS, () => {
+    runMigrations();
+    return store.get('settings');
+  });
   ipcMain.handle(IPC.SAVE_SETTINGS, (_e, settings: Settings) => {
     store.set('settings', settings);
     return true;

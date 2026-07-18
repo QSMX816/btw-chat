@@ -392,23 +392,31 @@ const ChatTab: React.FC = () => {
       </div>
 
       <div className="setting-group">
-        <div className="setting-label">生成参数</div>
+        <div className="setting-label">生成长度</div>
         <div className="setting-row">
           <div>
-            <div className="setting-row-title">随机度 (Temperature)</div>
-            <div className="setting-row-desc">{settings.temperature.toFixed(2)}</div>
+            <div className="setting-row-title">输出长度不限</div>
+            <div className="setting-row-desc">
+              {settings.maxTokens === 0
+                ? '不传 max_tokens，由模型自行决定（Anthropic 上限 32000）'
+                : `限制在 ${settings.maxTokens} tokens`}
+            </div>
           </div>
-          <input type="range" min={0} max={2} step={0.05} value={settings.temperature}
-            className="slider" onChange={(e) => updateSettings({ temperature: +e.target.value })} />
+          <button
+            className={`switch ${settings.maxTokens === 0 ? 'on' : ''}`}
+            onClick={() => updateSettings({ maxTokens: settings.maxTokens === 0 ? 4096 : 0 })}
+          />
         </div>
-        <div className="setting-row">
-          <div>
-            <div className="setting-row-title">最大长度 (Max Tokens)</div>
-            <div className="setting-row-desc">{settings.maxTokens}</div>
+        {settings.maxTokens !== 0 && (
+          <div className="setting-row">
+            <div>
+              <div className="setting-row-title">最大长度 (tokens)</div>
+              <div className="setting-row-desc">{settings.maxTokens}</div>
+            </div>
+            <input type="range" min={512} max={65536} step={512} value={settings.maxTokens}
+              className="slider" onChange={(e) => updateSettings({ maxTokens: +e.target.value })} />
           </div>
-          <input type="range" min={512} max={16384} step={256} value={settings.maxTokens}
-            className="slider" onChange={(e) => updateSettings({ maxTokens: +e.target.value })} />
-        </div>
+        )}
       </div>
 
       <div className="setting-group">

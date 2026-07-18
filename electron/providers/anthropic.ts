@@ -21,7 +21,9 @@ export async function streamAnthropic(
   const url = (provider.baseURL || 'https://api.anthropic.com').replace(/\/$/, '') + '/v1/messages';
   const systemPrompt = req.systemPrompt || 'You are a helpful assistant.';
 
-  const maxTokens = req.maxTokens || 4096;
+  // Anthropic 的 max_tokens 是必填项，无法真正省略。"不限"时给一个高上限。
+  // 若某模型不支持这么大会报错，用户可在设置里关掉"不限"手动指定更小的值。
+  const maxTokens = req.maxTokens && req.maxTokens > 0 ? req.maxTokens : 32000;
   const model = provider.models.find((m) => m.id === req.modelId);
   const wantsThinking = !!model?.supportsThinking;
 
