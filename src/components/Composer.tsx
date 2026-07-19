@@ -1,21 +1,26 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { SendIcon, StopIcon, GlobeIcon, PaperclipIcon, BrainIcon } from './Icons';
+import { SendIcon, StopIcon, GlobeIcon, PaperclipIcon, BrainIcon, RefreshIcon } from './Icons';
 import { useChat } from '../stores/conversations';
 import { useConfig } from '../stores/config';
 import { Attachment } from '../types';
 import { v4 as uuid } from 'uuid';
+import { useT } from '../i18n';
 
 interface Props {
   variant?: 'main' | 'btw';
   btwId?: string;
+  /** 主聊天：非流式且有 assistant 消息时可重新生成 */
+  canRegenerate?: boolean;
+  regenerateLast?: () => void;
 }
 
-export const Composer: React.FC<Props> = ({ variant = 'main', btwId }) => {
+export const Composer: React.FC<Props> = ({ variant = 'main', btwId, canRegenerate, regenerateLast }) => {
   const [text, setText] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const { sendMessage, sendBtwMessage, stopStreaming, streaming } = useChat();
   const { settings, updateSettings, getActiveModel } = useConfig();
+  const { t } = useT();
 
   const model = getActiveModel();
   const supportsVision = model?.supportsVision;
@@ -30,14 +35,14 @@ export const Composer: React.FC<Props> = ({ variant = 'main', btwId }) => {
 
   const submit = async () => {
     if (!text.trim() || streaming) return;
-    const t = text;
+    const tt = text;
     const atts = attachments;
     setText('');
     setAttachments([]);
     if (variant === 'btw' && btwId) {
-      await sendBtwMessage(btwId, t);
+      await sendBtwMessage(btwId, tt);
     } else {
-      await sendMessage(t, atts);
+      await sendMessage(tt, atts);
     }
   };
 
@@ -87,37 +92,41 @@ export const Composer: React.FC<Props> = ({ variant = 'main', btwId }) => {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKeyDown}
           rows={1}
-          placeholder={variant === 'btw' ? '顺便问点别的…' : '给 BTW Chat 发消息…'}
+          placeholder={variant === 'btw' ? t.composerBtwPh : t.composerPh}
         />
         <div className="composer-actions">
           {supportsVision && variant === 'main' && (
-            <>
-              <label className="composer-tool" title="添加图片">
-                <PaperclipIcon size={18} />
-                <input type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={onFile} />
-              </label>
-            </>
+            <label className="composer-tool" title={t.attach}>
+              <PaperclipIcon size={18} />
+              <input type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={onFile} />
+            </label>
           )}
           {variant === 'main' && (
             <button
               className={`composer-tool ${settings.webSearchEnabled ? 'active' : ''}`}
-              title="联网搜索"
+              title={t.webSearch}
               onClick={() => updateSettings({ webSearchEnabled: !settings.webSearchEnabled })}
             >
               <GlobeIcon size={18} />
             </button>
           )}
           {model?.supportsThinking && variant === 'main' && (
-            <div className="composer-tool active" title="该模型支持深度思考">
+            <div className="composer-tool active" title={t.thinkingSupported}>
               <BrainIcon size={17} />
             </div>
           )}
+          {/* 重新生成：非流式、有上一条回答时显示 */}
+          {variant === 'main' && canRegenerate && !streaming && (
+            <button className="composer-tool" title={t.regenerateLast} onClick={() => regenerateLast?.()}>
+              <RefreshIcon size={17} />
+            </button>
+          )}
           {streaming ? (
-            <button className="send-btn stop" onClick={stopStreaming} title="停止">
+            <button className="send-btn stop" onClick={stopStreaming} title={t.stop}>
               <StopIcon size={16} />
             </button>
           ) : (
-            <button className="send-btn" onClick={submit} disabled={!text.trim()} title="发送">
+            <button className="send-btn" onClick={submit} disabled={!text.trim()} title={t.send}>
               <SendIcon size={17} />
             </button>
           )}
@@ -125,7 +134,7 @@ export const Composer: React.FC<Props> = ({ variant = 'main', btwId }) => {
       </div>
       {variant === 'main' && (
         <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-tertiary)', marginTop: 6 }}>
-          {settings.sendOnEnter ? 'Enter 发送 · Shift+Enter 换行' : 'Ctrl/⌘+Enter 发送'} · 回答后点「顺便问一下」开启 BTW
+          {(settings.sendOnEnter ? t.composerEnter : t.composerCtrl)} · {t.composerBtwHint}
         </div>
       )}
     </div>

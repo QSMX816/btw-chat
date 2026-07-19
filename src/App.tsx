@@ -8,11 +8,13 @@ import { Logo } from './components/Logo';
 import { useConfig } from './stores/config';
 import { useChat } from './stores/conversations';
 import { useTheme } from './hooks/useTheme';
+import { useT } from './i18n';
 
 export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const { loaded, load } = useConfig();
   const { loadList, list, activeId, newConversation, openConversation } = useChat();
+  const { t } = useT();
 
   useTheme();
 
@@ -36,7 +38,7 @@ export default function App() {
       <div className="app">
         <div className="empty-state" style={{ height: '100vh' }}>
           <Logo size={72} />
-          <div className="empty-sub">正在唤醒 BTW Chat…</div>
+          <div className="empty-sub">{t.loadingApp}</div>
         </div>
       </div>
     );

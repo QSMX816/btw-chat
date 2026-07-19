@@ -43,6 +43,7 @@ interface ChatState {
   sendMessage: (text: string, attachments?: Message['attachments']) => Promise<void>;
   stopStreaming: () => Promise<void>;
   regenerateLast: () => Promise<void>;
+  compactConversation: () => Promise<void>;
 
   // BTW 操作
   startBtw: (anchorMessageId: string) => string;
@@ -203,6 +204,80 @@ export const useChat = create<ChatState>((set, get) => ({
     msgs.push(assistantMsg);
     set({ active: { ...active }, streaming: true });
     await runStream(get, set, active, assistantMsg);
+  },
+
+  compactConversation: async () => {
+    const { active } = get();
+    if (!active || get().streaming) return;
+    // 只压缩有实质内容的消息，太短就别折腾
+    const msgs = active.messages.filter((m) => (m.content && m.content.trim()) || (m.reasoning && m.reasoning.trim()));
+    if (msgs.length < 4) return;
+
+    const { settings } = useConfig.getState();
+    const provider = useConfig.getState().getActiveProvider();
+    if (!provider) return;
+
+    // 摘要消息：压缩完成后它会成为对话的唯一上下文
+    const summaryMsg: Message = {
+      id: uuid(),
+      role: 'assistant',
+      content: '',
+      reasoning: '',
+      createdAt: Date.now(),
+      model: settings.activeModelId,
+      thinkingDone: false,
+    };
+
+    // 立即用占位消息替换历史，UI 显示"正在压缩…"
+    active.messages = [summaryMsg];
+    set({ active: { ...active }, streaming: true });
+
+    const requestId = uuid();
+    set({ activeRequestId: requestId });
+
+    const transcript = msgs
+      .map((m) => `[${m.role}]${m.role === 'assistant' && m.model ? ` (${m.model})` : ''}: ${m.content}`)
+      .join('\n\n')
+      .slice(0, 80000);
+
+    const summarizeMessages: Message[] = [
+      {
+        id: 'compact-sys',
+        role: 'system',
+        content:
+          '你是对话压缩助手。把下面的历史对话压缩成一段紧凑的上下文摘要，保留：关键事实、用户的真实意图与偏好、已达成的结论、尚未解决的问题、重要的代码/数据/链接。' +
+          '用对话原本的语言，条理清晰，不要寒暄、不要复述指令。',
+        createdAt: Date.now(),
+      },
+      { id: 'compact-user', role: 'user', content: transcript, createdAt: Date.now() },
+    ];
+
+    const unsubscribe = streamChat({
+      requestId,
+      providerId: provider.id,
+      modelId: settings.activeModelId,
+      messages: summarizeMessages,
+      systemPrompt: '',
+      temperature: 0.3,
+      maxTokens: 2048,
+      onChunk: (chunk) => {
+        if (chunk.type === 'text') {
+          summaryMsg.content += chunk.content || '';
+        } else if (chunk.type === 'error') {
+          summaryMsg.error = true;
+          summaryMsg.content += `\n\n⚠️ ${chunk.error}`;
+        }
+        set({ active: { ...active, messages: [...active.messages] } });
+      },
+      onDone: () => {
+        summaryMsg.content = '📝 **上下文已压缩**\n\n' + (summaryMsg.content || '（压缩失败，请重试）');
+        summaryMsg.thinkingDone = true;
+        set({ streaming: false, activeRequestId: null, active: { ...active } });
+        persist(active);
+        get().loadList();
+      },
+    });
+    (get() as any).__mainUnsub = unsubscribe;
   },
 
   // ============ BTW ============

@@ -4,9 +4,11 @@ import { MessageBubble } from './MessageBubble';
 import { Composer } from './Composer';
 import { CloseIcon, ChatIcon, ChevronDown } from './Icons';
 import { useFollowScroll } from '../hooks/useFollowScroll';
+import { useT } from '../i18n';
 
 export const BtwPanel: React.FC = () => {
   const { openBtwId, active, streaming, closeBtw } = useChat();
+  const { t } = useT();
   const btw = openBtwId && active ? active.btwConversations.find((b) => b.id === openBtwId) : undefined;
   const { ref, onScroll, jump, showJump } = useFollowScroll({
     messages: btw?.messages ?? [],
@@ -21,12 +23,12 @@ export const BtwPanel: React.FC = () => {
     <aside className="btw-panel glass-strong">
       <div className="btw-header">
         <span className="btw-badge">
-          <ChatIcon size={12} /> BTW
+          <ChatIcon size={12} /> {t.msgBtw}
         </span>
         <span className="btw-header-title">
-          {anchorMsg ? `关于: ${anchorMsg.content.slice(0, 28)}${anchorMsg.content.length > 28 ? '…' : ''}` : '顺便聊聊'}
+          {anchorMsg ? `${t.btwAbout}: ${anchorMsg.content.slice(0, 28)}${anchorMsg.content.length > 28 ? '…' : ''}` : t.btwChat}
         </span>
-        <button className="btn btn-icon" title="关闭 BTW（可从主聊天 tag 重新打开）" onClick={() => closeBtw(btw.id)}>
+        <button className="btn btn-icon" title={t.btwCloseHint} onClick={() => closeBtw(btw.id)}>
           <CloseIcon size={16} />
         </button>
       </div>
@@ -36,7 +38,7 @@ export const BtwPanel: React.FC = () => {
           <div className="empty-state" style={{ padding: 20 }}>
             <div className="empty-logo" style={{ width: 48, height: 48, fontSize: 20, borderRadius: 16 }}>💬</div>
             <div className="empty-sub" style={{ fontSize: 13 }}>
-              这是顺便问一下分支。<br />在这里继续追问，不会打断主聊天。
+              {t.btwEmptySub}<br />{t.btwEmptySub2}
             </div>
           </div>
         )}
@@ -46,7 +48,7 @@ export const BtwPanel: React.FC = () => {
       </div>
 
       {showJump && (
-        <button className="jump-fab btw" title="回到底部" onClick={jump}>
+        <button className="jump-fab btw" title={t.scrollToBottom} onClick={jump}>
           <ChevronDown size={16} />
         </button>
       )}

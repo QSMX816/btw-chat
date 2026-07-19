@@ -3,6 +3,7 @@ import { Message } from '../types';
 import { Markdown } from './Markdown';
 import { BrainIcon, ChatIcon, ChevronDown } from './Icons';
 import { useChat } from '../stores/conversations';
+import { useT } from '../i18n';
 
 interface Props {
   message: Message;
@@ -12,6 +13,7 @@ interface Props {
 
 export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
   const { openBtwId, reopenBtw, startBtw, active } = useChat();
+  const { t } = useT();
   const [thinkOpen, setThinkOpen] = useState(true);
   const isUser = message.role === 'user';
   const isLive = message.role === 'assistant' && message.content === '' && !!message.reasoning;
@@ -27,7 +29,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
     <div className={`msg-row ${message.role}`}>
       <div style={{ display: 'flex', gap: 10, width: '100%', flexDirection: isUser ? 'row-reverse' : 'row' }}>
         <div className={`msg-avatar ${isUser ? 'user' : 'ai'}`}>
-          {isUser ? '我' : 'BTW'}
+          {isUser ? t.msgMe : t.msgBtw}
         </div>
         <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'stretch' }}>
           <div className="msg-bubble">
@@ -41,7 +43,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
                   <span className="dot" />
                   <BrainIcon size={14} />
                   <span>
-                    {message.thinkingDone ? '思考过程' : '正在思考…'}
+                    {message.thinkingDone ? t.thinkingProcess : t.thinkingNow}
                   </span>
                   <span style={{ marginLeft: 'auto', opacity: 0.6 }}>
                     <ChevronDown
@@ -74,10 +76,10 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
                 <span
                   className="btw-tag"
                   onClick={() => reopenBtw(linkedBtw.id)}
-                  title="查看 BTW 对话"
+                  title={t.viewBtw}
                 >
                   <ChatIcon size={13} />
-                  BTW · {linkedBtw.messages.filter((m) => m.role === 'user').length} 条
+                  BTW · {linkedBtw.messages.filter((m) => m.role === 'user').length} {t.msgs}
                 </span>
               )}
               {/* 没有 btw：显示"顺便问一下"按钮 */}
@@ -86,10 +88,10 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
                   className="btw-tag"
                   style={{ background: 'transparent', color: 'var(--text-tertiary)', border: '1px dashed rgba(128,128,128,0.35)' }}
                   onClick={() => startBtw(message.id)}
-                  title="就这条回答，顺便问点别的"
+                  title={t.askBtwHint}
                 >
                   <ChatIcon size={13} />
-                  顺便问一下 (BTW)
+                  {t.askBtw}
                 </span>
               )}
             </div>

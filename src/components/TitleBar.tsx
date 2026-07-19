@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SettingsIcon, MinusIcon, PlusMini } from './Icons';
 import { Logo } from './Logo';
+import { useT } from '../i18n';
 
 interface Props {
   onOpenSettings: () => void;
@@ -9,6 +10,7 @@ interface Props {
 export const TitleBar: React.FC<Props> = ({ onOpenSettings }) => {
   const [maximized, setMaximized] = useState(false);
   const isMac = window.btw.platform === 'darwin';
+  const { t } = useT();
 
   useEffect(() => {
     const unsub = window.btw.window.onMaximizeChange(setMaximized);
@@ -20,7 +22,7 @@ export const TitleBar: React.FC<Props> = ({ onOpenSettings }) => {
       {/* 左侧：logo + 标题（可拖拽区域） */}
       <div className="titlebar-brand">
         <Logo size={24} />
-        <span className="titlebar-appname">BTW Chat</span>
+        <span className="titlebar-appname">{t.appName}</span>
       </div>
 
       {/* 中间：可拖拽空区 */}
@@ -28,7 +30,7 @@ export const TitleBar: React.FC<Props> = ({ onOpenSettings }) => {
 
       {/* 右侧：设置 + Windows 风格窗口按钮 */}
       <div className="titlebar-actions">
-        <button className="btn btn-icon" title="设置" onClick={onOpenSettings}>
+        <button className="btn btn-icon" title={t.settings} onClick={onOpenSettings}>
           <SettingsIcon size={18} />
         </button>
 
@@ -41,13 +43,13 @@ export const TitleBar: React.FC<Props> = ({ onOpenSettings }) => {
           </div>
         ) : (
           <div className="win-buttons">
-            <button className="win-btn" title="最小化" onClick={() => window.btw.window.minimize()}>
+            <button className="win-btn" title={t.tbMinimize} onClick={() => window.btw.window.minimize()}>
               <MinusIcon size={15} />
             </button>
-            <button className="win-btn" title="最大化/还原" onClick={() => window.btw.window.maximize()}>
+            <button className="win-btn" title={maximized ? t.tbRestore : t.tbMaximize} onClick={() => window.btw.window.maximize()}>
               {maximized ? <RestoreIcon /> : <PlusMini size={13} />}
             </button>
-            <button className="win-btn win-close" title="关闭" onClick={() => window.btw.window.close()}>
+            <button className="win-btn win-close" title={t.tbClose} onClick={() => window.btw.window.close()}>
               <CloseGlyph />
             </button>
           </div>

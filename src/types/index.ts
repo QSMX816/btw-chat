@@ -68,6 +68,9 @@ export interface ModelConfig {
   supportsThinking?: boolean;
   supportsVision?: boolean;
   supportsWebSearch?: boolean;
+  /** 价格：每 1M tokens 的 USD，用于费用估算（近似值） */
+  inputPricePerM?: number;
+  outputPricePerM?: number;
 }
 
 export interface Provider {
@@ -96,6 +99,7 @@ export type ThemeMode = 'light' | 'dark' | 'auto';
 export interface Settings {
   theme: ThemeName;
   themeMode: ThemeMode;
+  language: 'auto' | 'zh' | 'en';   // 界面语言；auto 跟随系统
   glassIntensity: number;     // 毛玻璃强度 0-100
   fontScale: number;          // 字体缩放
   activeProviderId: string;

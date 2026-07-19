@@ -2,21 +2,24 @@ import React, { useState } from 'react';
 import { useChat } from '../stores/conversations';
 import { PlusIcon, SearchIcon, TrashIcon, PinIcon, ChatIcon } from './Icons';
 import { Logo } from './Logo';
+import { useT } from '../i18n';
+import type { Lang } from '../i18n/translations';
 
-function timeAgo(ts: number): string {
+function timeAgo(ts: number, t: any, lang: Lang): string {
   const diff = Date.now() - ts;
   const min = Math.floor(diff / 60000);
-  if (min < 1) return '刚刚';
-  if (min < 60) return `${min} 分钟前`;
+  if (min < 1) return t.justNow;
+  if (min < 60) return `${min} ${t.minAgo}`;
   const h = Math.floor(min / 60);
-  if (h < 24) return `${h} 小时前`;
+  if (h < 24) return `${h} ${t.hourAgo}`;
   const d = Math.floor(h / 24);
-  if (d < 7) return `${d} 天前`;
-  return new Date(ts).toLocaleDateString('zh-CN');
+  if (d < 7) return `${d} ${t.dayAgo}`;
+  return new Date(ts).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US');
 }
 
 export const Sidebar: React.FC = () => {
   const { list, activeId, openConversation, newConversation, deleteConversation, togglePin } = useChat();
+  const { t, lang } = useT();
   const [query, setQuery] = useState('');
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
@@ -32,12 +35,12 @@ export const Sidebar: React.FC = () => {
           <input
             className="sidebar-search"
             style={{ paddingLeft: 32 }}
-            placeholder="搜索对话"
+            placeholder={t.searchPlaceholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <button className="btn btn-icon" title="新建对话" onClick={newConversation}>
+        <button className="btn btn-icon" title={t.newChat} onClick={newConversation}>
           <PlusIcon size={18} />
         </button>
       </div>
@@ -45,7 +48,7 @@ export const Sidebar: React.FC = () => {
       <div className="conv-list">
         {filtered.length === 0 && (
           <div style={{ padding: '30px 14px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 13 }}>
-            {query ? '没有匹配的对话' : '点击 + 开始第一个对话'}
+            {query ? t.sidebarNoMatch : t.sidebarStartFirst}
           </div>
         )}
         {filtered.map((c) => (
@@ -58,8 +61,8 @@ export const Sidebar: React.FC = () => {
             <div className="conv-item-main">
               <div className="conv-item-title">{c.title}</div>
               <div className="conv-meta">
-                <span>{timeAgo(c.updatedAt)}</span>
-                <span>· {c.messageCount} 条</span>
+                <span>{timeAgo(c.updatedAt, t, lang)}</span>
+                <span>· {c.messageCount} {t.msgs}</span>
                 {c.btwCount > 0 && (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                     <ChatIcon size={10} /> {c.btwCount}
@@ -70,14 +73,14 @@ export const Sidebar: React.FC = () => {
             <div className="conv-actions">
               <button
                 className="conv-action"
-                title={c.pinned ? '取消置顶' : '置顶'}
+                title={c.pinned ? t.unpin : t.pin}
                 onClick={(e) => { e.stopPropagation(); togglePin(c.id); }}
               >
                 <PinIcon size={13} />
               </button>
               <button
                 className="conv-action"
-                title="删除"
+                title={t.delete}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirmId === c.id) {
@@ -89,7 +92,7 @@ export const Sidebar: React.FC = () => {
                   }
                 }}
               >
-                {confirmId === c.id ? <span style={{ fontSize: 9 }}>再点确认</span> : <TrashIcon size={13} />}
+                {confirmId === c.id ? <span style={{ fontSize: 9 }}>{t.confirmAgain}</span> : <TrashIcon size={13} />}
               </button>
             </div>
           </div>
@@ -99,8 +102,8 @@ export const Sidebar: React.FC = () => {
       <div className="sidebar-footer">
         <Logo size={30} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12.5, fontWeight: 600 }}>BTW Chat</div>
-          <div style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>v1.0 · 多模型 · 毛玻璃</div>
+          <div style={{ fontSize: 12.5, fontWeight: 600 }}>{t.appName}</div>
+          <div style={{ fontSize: 10.5, color: 'var(--text-tertiary)' }}>{t.sidebarVersion}</div>
         </div>
       </div>
     </aside>

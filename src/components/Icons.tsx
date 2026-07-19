@@ -71,3 +71,10 @@ export const MinusIcon = ({ size, ...p }: IconProps) => (
   <svg {...base(size)} {...p}><path d="M5 12h14" /></svg>
 );
 export const PlusMini = PlusIcon;
+
+export const CompactIcon = ({ size, ...p }: IconProps) => (
+  <svg {...base(size)} {...p}>
+    <path d="M4 9h16M4 15h16" />
+    <path d="M9 3v4l3-2-3-2ZM15 21v-4l3 2-3 2Z" />
+  </svg>
+);

@@ -37,3 +37,38 @@ export function estimateConversationTokens(
   }
   return total;
 }
+
+// 按角色拆分 input / output token 估算，用于费用估算：
+//  - system + user 视为输入（input）
+//  - assistant 的正文 + 思考过程 视为输出（output）
+export function estimateInputOutputTokens(
+  messages: { role: string; content: string; reasoning?: string }[],
+  systemPrompt = ''
+): { input: number; output: number } {
+  let input = estimateTokens(systemPrompt);
+  let output = 0;
+  for (const m of messages) {
+    if (m.role === 'assistant') {
+      output += estimateTokens(m.content);
+      if (m.reasoning) output += estimateTokens(m.reasoning);
+      output += 4;
+    } else {
+      input += estimateTokens(m.content);
+      input += 4;
+    }
+  }
+  return { input, output };
+}
+
+// 估算美元费用：input/output token 数 × 模型单价（USD/1M）
+export function estimateCostUsd(
+  inputTokens: number,
+  outputTokens: number,
+  model?: { inputPricePerM?: number; outputPricePerM?: number }
+): number {
+  if (!model) return 0;
+  const inP = model.inputPricePerM ?? 0;
+  const outP = model.outputPricePerM ?? 0;
+  if (!inP && !outP) return 0;
+  return (inputTokens / 1e6) * inP + (outputTokens / 1e6) * outP;
+}
