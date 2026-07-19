@@ -27,7 +27,7 @@ source=("BTW-Chat-${pkgver}-linux-x64.tar.gz"
 # source=("${url}/releases/download/v${pkgver}/BTW-Chat-${pkgver}-linux-x64.tar.gz"
 #         "${url}/releases/download/v${pkgver}/icon.png"
 #         "${url}/releases/download/v${pkgver}/btw-chat.desktop")
-sha256sums=('07a99b301aa225fbad138a2623b689a5fb8a483867a9c12b4d609310ef7ebb29'
+sha256sums=('f09ba7d3d772217e599d333d0725f4fedbb9ad80fab05998e7fdbbff62fd8103'
             'SKIP'
             'SKIP')
 
