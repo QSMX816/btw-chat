@@ -1,6 +1,6 @@
 {
   "name": "btw-chat",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "BTW Chat — AI chat with a by-the-way split panel, glass UI",
   "author": "BTW",
   "homepage": "https://github.com/QSMX816/btw-chat",
@@ -15,6 +15,7 @@
     "icon": "node scripts/icon-gen.mjs",
     "dist": "npm run build && electron-builder --win",
     "dist:linux": "npm run build && electron-builder --linux",
+    "dist:mac": "npm run build && electron-builder --mac",
     "dist:all": "npm run build && electron-builder --win nsis && electron-builder --linux deb AppImage tar.gz"
   },
   "build": {
@@ -60,6 +61,16 @@
         "Categories": "Utility;Network;Chat;",
         "Terminal": "false"
       }
+    },
+    "mac": {
+      "icon": "build/icon-1024.png",
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "artifactName": "BTW-Chat-${version}-mac-${arch}.${ext}"
     },
     "files": [
       "dist/**/*",

@@ -8,7 +8,7 @@
 # 发布到 AUR 后，把 source() 里的本地文件改成 GitHub Releases URL 即可（见下方注释）。
 
 pkgname=btw-chat
-pkgver=1.0.3
+pkgver=1.0.4
 pkgrel=1
 pkgdesc="AI chat with a by-the-way (BTW) split panel, multi-provider, glass UI"
 arch=('x86_64')
@@ -27,7 +27,7 @@ source=("BTW-Chat-${pkgver}-linux-x64.tar.gz"
 # source=("${url}/releases/download/v${pkgver}/BTW-Chat-${pkgver}-linux-x64.tar.gz"
 #         "${url}/releases/download/v${pkgver}/icon.png"
 #         "${url}/releases/download/v${pkgver}/btw-chat.desktop")
-sha256sums=('f09ba7d3d772217e599d333d0725f4fedbb9ad80fab05998e7fdbbff62fd8103'
+sha256sums=('SKIP'
             'SKIP'
             'SKIP')
 

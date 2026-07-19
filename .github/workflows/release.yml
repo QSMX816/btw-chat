@@ -1,0 +1,107 @@
+name: release
+
+# 打 tag（v1.0.4 等）时自动在 linux/windows/macOS 三个 runner 上分别构建，
+# 然后把所有产物汇到一个 GitHub Release。也可在 Actions 页面手动运行。
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+            cmd: npm run dist:linux
+          - name: windows
+            os: windows-latest
+            cmd: npm run dist
+          - name: macos
+            os: macos-latest
+            cmd: npm run dist:mac
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build & package
+        run: ${{ matrix.cmd }}
+        env:
+          # 没有 Apple 开发者证书时跳过签名/公证；有证书时可注入 CSC_* 密钥启用
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Windows：nsis 之外再打一个便携 zip
+      - name: Portable zip (windows)
+        if: matrix.name == 'windows'
+        shell: pwsh
+        run: |
+          $ver = (node -p "require('./package.json').version")
+          Compress-Archive -Path release\win-unpacked\* -DestinationPath "release\BTW-Chat-$ver-windows-x64-portable.zip" -Force
+
+      # Linux：electron-builder 出 x86_64/amd64，统一归一化为 x64
+      - name: Normalize linux artifact names
+        if: matrix.name == 'linux'
+        shell: bash
+        run: |
+          cd release
+          for f in BTW-Chat-*-linux-x86_64.* BTW-Chat-*-linux-amd64.*; do
+            [ -e "$f" ] || continue
+            n=$(echo "$f" | sed -E 's/-(x86_64|amd64)\./-x64./')
+            [ "$f" != "$n" ] && mv "$f" "$n"
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.name }}
+          if-no-files-found: error
+          path: |
+            release/BTW-Chat-*-linux-x64.deb
+            release/BTW-Chat-*-linux-x64.AppImage
+            release/BTW-Chat-*-linux-x64.tar.gz
+            release/BTW-Chat-*-windows-x64.exe
+            release/BTW-Chat-*-windows-x64-portable.zip
+            release/BTW-Chat-*-mac-x64.dmg
+            release/BTW-Chat-*-mac-arm64.dmg
+
+  release:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          echo "Publishing $tag with assets:"
+          ls -lh artifacts/
+          gh release create "$tag" artifacts/* \
+            --title "BTW Chat ${tag}" \
+            --generate-notes \
+            --verify-tag \
+            || gh release upload "$tag" artifacts/* --clobber
