@@ -105,7 +105,9 @@ jobs:
 
       - name: Install Android SDK packages
         shell: bash
-        run: yes | sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+        # 用进程替换喂 yes 应答 license；Actions 默认 bash -eo pipefail，
+        # `yes |` 收尾时 yes 会被 SIGPIPE(141) 拖垮管道，故改用 < <(yes)。
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" < <(yes)
 
       - name: Install web deps
         run: npm ci
