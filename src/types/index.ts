@@ -26,7 +26,14 @@ export interface Attachment {
   name: string;
   type: string;
   size: number;
-  data: string; // base64
+  data?: string; // base64（图片用）
+  kind?: 'image' | 'document';
+  // 文档抽取结果
+  extractedText?: string;
+  extractError?: string;
+  extracting?: boolean;
+  truncated?: boolean;
+  pages?: number;
 }
 
 export interface Conversation {

@@ -66,6 +66,18 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
             ) : (
               !message.reasoning && streaming && <span className="typing-cursor" />
             )}
+
+            {/* 附件（仅显示标记，文档正文已作为上下文发给模型，不在此铺开） */}
+            {isUser && message.attachments && message.attachments.length > 0 && (
+              <div className="msg-attachments">
+                {message.attachments.filter((a) => a.kind === 'image' && a.data).map((a) => (
+                  <img key={a.id} className="msg-att-img" src={`data:${a.type};base64,${a.data}`} alt={a.name} />
+                ))}
+                {message.attachments.filter((a) => a.kind === 'document').map((a) => (
+                  <span key={a.id} className="msg-att-doc" title={a.name}>📄 {a.name}</span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* BTW 触发入口（仅在 assistant 消息且不在 btw 面板里）*/}

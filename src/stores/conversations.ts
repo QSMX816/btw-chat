@@ -330,7 +330,7 @@ export const useChat = create<ChatState>((set, get) => ({
     set({ active: { ...active } });
 
     // 用 btw 的历史 + 当前主对话最近若干条做上下文
-    const contextMsgs = buildBtwContext(active, btw);
+    const contextMsgs = injectDocText(buildBtwContext(active, btw));
     const provider = useConfig.getState().getActiveProvider();
     if (!provider) return;
 
@@ -413,7 +413,7 @@ async function runStream(
   set({ activeRequestId: requestId });
 
   // 如果开启联网搜索，先抓取结果注入
-  let contextMessages = [...active.messages.filter((m) => m.id !== assistantMsg.id)];
+  let contextMessages = injectDocText(active.messages.filter((m) => m.id !== assistantMsg.id));
 
   if (settings.webSearchEnabled) {
     const lastUser = [...contextMessages].reverse().find((m) => m.role === 'user');
@@ -481,4 +481,20 @@ function buildBtwContext(active: Conversation, btw: BtwConversation): Message[] 
     createdAt: Date.now(),
   };
   return [sys, ...btw.messages.filter((m) => m.role !== 'system')];
+}
+
+// 把文档附件抽出的文本注入到对应消息的 content 里（仅用于发给 API，不改显示）。
+// 这样对所有供应商都通用：文档文字作为普通文本上下文，图片仍由 provider builder 处理。
+function injectDocText(messages: Message[]): Message[] {
+  return messages.map((m) => {
+    const docs = m.attachments?.filter((a) => a.kind === 'document' && a.extractedText);
+    if (!docs || docs.length === 0) return m;
+    const docText = docs
+      .map((d) => {
+        const tag = `【文件: ${d.name}${d.pages ? ` · ${d.pages}p` : ''}${d.truncated ? ' · 已截断' : ''}】`;
+        return `${tag}\n${d.extractedText}`;
+      })
+      .join('\n\n\n');
+    return { ...m, content: `${docText}\n\n${m.content}` };
+  });
 }
