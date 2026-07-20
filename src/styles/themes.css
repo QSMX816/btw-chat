@@ -23,6 +23,7 @@
   --bg-image: radial-gradient(at 0% 0%, var(--bg-1) 0px, transparent 50%),
     radial-gradient(at 100% 0%, var(--bg-2) 0px, transparent 50%),
     radial-gradient(at 50% 100%, var(--bg-3) 0px, transparent 50%);
+  --bg-solid: #eef0f4;
 
   --bubble-user: linear-gradient(135deg, #007aff, #5856d6);
   --bubble-assistant: rgba(255, 255, 255, 0.7);
@@ -47,6 +48,7 @@
   --bg-1: #5b8cff;
   --bg-2: #c4a0ff;
   --bg-3: #6fd6ff;
+  --bg-solid: #eaedf6;
   --bubble-user: linear-gradient(135deg, #0a84ff, #bf5af2);
   --tag-bg: rgba(10, 132, 255, 0.14);
   --tag-text: #0a6fff;
@@ -60,6 +62,7 @@
   --bg-1: #ffb088;
   --bg-2: #ff9aa8;
   --bg-3: #ffd089;
+  --bg-solid: #fbf0ea;
   --bubble-user: linear-gradient(135deg, #ff6b6b, #ff8e72);
   --tag-bg: rgba(255, 107, 107, 0.16);
   --tag-text: #e8505b;
@@ -73,6 +76,7 @@
   --bg-1: #4facfe;
   --bg-2: #00c6fb;
   --bg-3: #43e97b;
+  --bg-solid: #e9f1f6;
   --bubble-user: linear-gradient(135deg, #0072ff, #00c6ff);
   --tag-bg: rgba(0, 114, 255, 0.14);
   --tag-text: #0066d6;
@@ -86,6 +90,7 @@
   --bg-1: #1a1a2e;
   --bg-2: #16213e;
   --bg-3: #2d1b4e;
+  --bg-solid: #14141c;
   --glass-bg: rgba(40, 40, 60, 0.5);
   --glass-bg-strong: rgba(45, 45, 70, 0.7);
   --glass-border: rgba(255, 255, 255, 0.14);
@@ -106,6 +111,7 @@
   --bg-1: #a8e6cf;
   --bg-2: #88d8b0;
   --bg-3: #dcedc1;
+  --bg-solid: #ecf2ee;
   --bubble-user: linear-gradient(135deg, #16a085, #2ecc71);
   --tag-bg: rgba(46, 204, 113, 0.16);
   --tag-text: #178a4f;
@@ -119,6 +125,7 @@
   --bg-1: #ffd6e8;
   --bg-2: #ffb3c6;
   --bg-3: #ffe0e9;
+  --bg-solid: #f9edf1;
   --bubble-user: linear-gradient(135deg, #ff5f87, #c44569);
   --tag-bg: rgba(255, 95, 135, 0.16);
   --tag-text: #d63d68;
@@ -126,6 +133,7 @@
 
 /* —— 深色模式覆写（非 midnight 主题切到 dark 时）—— */
 [data-mode='dark']:not([data-theme='midnight']) {
+  --bg-solid: #1b1b22;
   --glass-bg: rgba(36, 36, 48, 0.55);
   --glass-bg-strong: rgba(42, 42, 58, 0.72);
   --glass-border: rgba(255, 255, 255, 0.16);

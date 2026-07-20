@@ -32,43 +32,11 @@ body {
   user-select: none;
 }
 
-/* 动态渐变背景 —— 整个窗口底层 */
+/* 纯色背景 —— 去掉动态渐变（之前动画渲染有 bug）。
+   主题颜色改由聊天气泡 / 按钮 / 点缀色承担。 */
 #root {
   position: relative;
-}
-
-#root::before {
-  content: '';
-  position: fixed;
-  inset: -10%;
-  background: var(--bg-image);
-  background-size: 200% 200%;
-  filter: saturate(1.2) blur(0px);
-  z-index: -2;
-  animation: bgShift 30s ease-in-out infinite alternate;
-}
-
-#root::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: var(--bg-image);
-  filter: blur(60px) saturate(1.4);
-  opacity: 0.85;
-  z-index: -1;
-  animation: bgShift 40s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes bgShift {
-  0% {
-    background-position: 0% 0%;
-  }
-  50% {
-    background-position: 100% 100%;
-  }
-  100% {
-    background-position: 0% 100%;
-  }
+  background: var(--bg-solid);
 }
 
 /* ============ 毛玻璃 mixin（通过 class 复用）============ */
