@@ -1,14 +1,13 @@
 // 客户端文档抽文本：PDF / Word / Excel / 纯文本与代码，统一成纯文本喂给模型。
 // 通用方案，不依赖各家原生文档 API。
 import * as pdfjsLib from 'pdfjs-dist';
+// 用 Vite 的 ?worker 后缀导入，避免 new URL(bare-specifier, import.meta.url)
+// 在不同环境下解析不一致的问题。Vite 会把 worker 单独打包。
+import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker';
 import mammoth from 'mammoth/mammoth.browser';
 import * as XLSX from 'xlsx';
 
-// pdfjs 需要 worker。Vite 会把这条 new Worker(new URL(...)) 单独打包。
-pdfjsLib.GlobalWorkerOptions.workerPort = new Worker(
-  new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url),
-  { type: 'module' }
-);
+pdfjsLib.GlobalWorkerOptions.workerPort = new PdfWorker();
 
 // 抽取文本上限（字符数），避免把上下文撑爆。超出截断。
 const MAX_CHARS = 120000;
