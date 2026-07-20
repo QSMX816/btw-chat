@@ -1,0 +1,18 @@
+node_modules/
+dist/
+assets/
+
+# Android 构建产物 / 本地配置（cap sync 会在 CI 重新生成 web assets）
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/captures/
+android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+*.iml
+.idea/
+
+*.tsbuildinfo

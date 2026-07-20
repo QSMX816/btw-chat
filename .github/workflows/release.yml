@@ -79,9 +79,65 @@ jobs:
             release/BTW-Chat-*-mac-x64.dmg
             release/BTW-Chat-*-mac-arm64.dmg
 
+  build-android:
+    name: build (android)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platforms;android-35
+            build-tools;35.0.0
+
+      - name: Install web deps
+        run: npm ci
+
+      - name: Build web (Vite)
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build release APK
+        working-directory: mobile/android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Rename APK
+        working-directory: mobile/android
+        shell: bash
+        run: |
+          ver=$(node -p "require('../package.json').version")
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/BTW-Chat-${ver}-android.apk"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-android
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/BTW-Chat-*-android.apk
+
   release:
     name: publish release
-    needs: build
+    needs: [build, build-android]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
