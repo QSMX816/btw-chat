@@ -114,7 +114,7 @@ export const BrainIcon = (p: P) => (
 );
 export const SparkIcon = (p: P) => (
   <S {...p}>
-    <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" fill="currentColor" stroke="none" />
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
   </S>
 );
 export const DocIcon = (p: P) => (

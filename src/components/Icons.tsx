@@ -62,7 +62,7 @@ export const CheckIcon = ({ size, ...p }: IconProps) => (
   <svg {...base(size)} {...p}><path d="M20 6 9 17l-5-5" /></svg>
 );
 export const SparkleIcon = ({ size, ...p }: IconProps) => (
-  <svg {...base(size)} {...p}><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3Z" /></svg>
+  <svg {...base(size)} {...p}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
 );
 export const EditIcon = ({ size, ...p }: IconProps) => (
   <svg {...base(size)} {...p}><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>

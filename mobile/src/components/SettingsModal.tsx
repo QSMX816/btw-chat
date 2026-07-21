@@ -63,7 +63,7 @@ export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
               <div className="empty-sub">{t.setAboutDesc}</div>
               <div className="empty-sub" style={{ marginTop: 8 }}>{t.setAboutProviders}</div>
               <div className="empty-sub" style={{ marginTop: 8 }}>{t.setAboutFeatures}</div>
-              <div style={{ marginTop: 14, fontSize: 12, color: 'var(--text-tertiary)' }}>{t.setAboutVersion} 1.0.7 · Android</div>
+              <div style={{ marginTop: 14, fontSize: 12, color: 'var(--text-tertiary)' }}>{t.setAboutVersion} 1.0.8 · Android</div>
             </div>
           </div>
         )}
