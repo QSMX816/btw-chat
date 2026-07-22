@@ -41,9 +41,10 @@ jobs:
       - name: Build & package
         run: ${{ matrix.cmd }}
         env:
-          # 没有 Apple 开发者证书时跳过签名/公证；有证书时可注入 CSC_* 密钥启用
+          # 没有开发者证书时跳过签名/公证；有证书时可注入 CSC_* 密钥启用
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 不在此处注入 GH_TOKEN：避免 electron-builder 在构建期自动发布，
+          # 改由下方 release job 统一创建/上传 Release（确定性，无竞态）。
 
       # Windows：nsis 之外再打一个便携 zip
       - name: Portable zip (windows)
