@@ -51,10 +51,11 @@ export const Sidebar: React.FC = () => {
             {query ? t.sidebarNoMatch : t.sidebarStartFirst}
           </div>
         )}
-        {filtered.map((c) => (
+        {filtered.map((c, idx) => (
           <div
             key={c.id}
             className={`conv-item ${c.id === activeId ? 'active' : ''}`}
+            style={{ ['--i' as string]: Math.min(idx, 8) } as React.CSSProperties}
             onClick={() => openConversation(c.id)}
           >
             {c.pinned && <PinIcon size={11} style={{ opacity: 0.8 }} />}

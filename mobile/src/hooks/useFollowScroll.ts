@@ -28,7 +28,8 @@ export function useFollowScroll(deps: unknown[]) {
   const jump = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    // 平滑滑到底部（流式自动跟随仍用瞬时设置，避免逐 token 卡顿）
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     follow.current = true;
     setShowJump(false);
   }, []);

@@ -502,3 +502,49 @@ button { font-family: inherit; }
   border: 1px solid var(--glass-border); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   font-size: 13.5px; font-weight: 550; z-index: 200; box-shadow: var(--shadow-md);
 }
+
+/* ============ 微动画 ============ */
+/* 消息进场：淡入 + 上浮（仅挂载时触发，流式追加 token 不重播）*/
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.msg-row { animation: msgIn 0.34s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+/* AI 等待首字时的「三点打字」指示 */
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+.typing-dots { display: inline-flex; gap: 4px; align-items: center; padding: 4px 2px; }
+.typing-dots span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-secondary);
+  animation: dotBounce 1.2s infinite ease-in-out;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.16s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+/* 对话列表错峰淡入 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.conv-item { animation: fadeInUp 0.3s ease both; animation-delay: calc(var(--i, 0) * 22ms); }
+
+/* 空状态 logo 轻柔悬浮 */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.empty-logo { animation: float 4.5s ease-in-out infinite; }
+
+/* 「回到底部」浮动按钮淡入 */
+.jump-fab { animation: fadeIn 0.18s; }
+
+/* 尊重系统「减少动态效果」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .msg-row, .conv-item, .empty-logo, .typing-dots span, .jump-fab {
+    animation: none !important;
+  }
+}

@@ -55,7 +55,7 @@ export const MessageBubble: React.FC<Props> = ({
             <Markdown content={message.content} />
           </div>
         ) : live && !hasThinking ? (
-          <span className="typing-cursor" />
+          <div className="typing-dots"><span /><span /><span /></div>
         ) : null}
 
         {(images?.length || docs?.length) ? (

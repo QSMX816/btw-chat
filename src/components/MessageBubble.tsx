@@ -64,7 +64,9 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
                 <Markdown content={message.content} />
               )
             ) : (
-              !message.reasoning && streaming && <span className="typing-cursor" />
+              !message.reasoning && streaming && (
+                <div className="typing-dots"><span /><span /><span /></div>
+              )
             )}
 
             {/* 附件（仅显示标记，文档正文已作为上下文发给模型，不在此铺开） */}

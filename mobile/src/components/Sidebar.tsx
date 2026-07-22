@@ -64,10 +64,11 @@ export const Sidebar: React.FC<{ onClose: () => void; onOpenSettings: () => void
               {q ? t.sidebarNoMatch : t.sidebarEmpty}
             </div>
           )}
-          {list.map((c) => (
+          {list.map((c, idx) => (
             <div
               key={c.id}
               className={`conv-item ${c.id === conv.activeId ? 'active' : ''}`}
+              style={{ ['--i' as string]: Math.min(idx, 8) } as React.CSSProperties}
               onClick={() => open(c.id)}
             >
               <div className="conv-item-main">
