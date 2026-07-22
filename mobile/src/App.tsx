@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { useTheme } from './hooks/useTheme';
+import { usePresence } from './hooks/usePresence';
 import { useConfig } from './stores/config';
 import { useConversations } from './stores/conversations';
 import { useT, resolveLang } from './i18n';
@@ -23,6 +24,15 @@ export default function App() {
   const [picker, setPicker] = useState(false);
   const [settings, setSettings] = useState(false);
 
+  // 覆盖层退场动画
+  const dr = usePresence(drawer);
+  const pk = usePresence(picker);
+  const st = usePresence(settings);
+  const btw = usePresence(!!conv.btwOpen);
+  // BTW 关闭时 store 立即清空 btwOpen，这里保留快照让退场动画有内容可播
+  const lastBtw = useRef(conv.btwOpen);
+  if (conv.btwOpen) lastBtw.current = conv.btwOpen;
+
   // 首次加载本地配置 + 对话
   useEffect(() => {
     (async () => {
@@ -37,14 +47,21 @@ export default function App() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const h = CapApp.addListener('backButton', ({ canGoBack }) => {
-      if (conv.btwOpen) { conv.closeBtw(); return; }
-      if (settings) { setSettings(false); return; }
-      if (picker) { setPicker(false); return; }
-      if (drawer) { setDrawer(false); return; }
+      // 任一覆盖层处于「打开中」或「退场中」都不退出 app
+      const anyVisible = conv.btwOpen || settings || picker || drawer;
+      const anyLeaving = btw.leaving || st.leaving || pk.leaving || dr.leaving;
+      if (anyVisible || anyLeaving) {
+        if (conv.btwOpen) conv.closeBtw();
+        else if (settings) setSettings(false);
+        else if (picker) setPicker(false);
+        else if (drawer) setDrawer(false);
+        return;
+      }
       if (!canGoBack) CapApp.exitApp();
     });
     return () => { void h.then((hh) => hh.remove()); };
-  }, [conv, settings, picker, drawer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conv, settings, picker, drawer, btw.leaving, st.leaving, pk.leaving, dr.leaving]);
 
   if (!cfg.loaded || !conv.loaded) {
     return (
@@ -104,10 +121,10 @@ export default function App() {
 
       <Composer variant="main" />
 
-      {drawer && <Sidebar onClose={() => setDrawer(false)} onOpenSettings={() => setSettings(true)} />}
-      {picker && <ModelPicker onClose={() => setPicker(false)} />}
-      {settings && <SettingsModal onClose={() => setSettings(false)} />}
-      {conv.btwOpen && <BtwSheet />}
+      {dr.render && <Sidebar leaving={dr.leaving} onClose={() => setDrawer(false)} onOpenSettings={() => setSettings(true)} />}
+      {pk.render && <ModelPicker leaving={pk.leaving} onClose={() => setPicker(false)} />}
+      {st.render && <SettingsModal leaving={st.leaving} onClose={() => setSettings(false)} />}
+      {btw.render && <BtwSheet leaving={btw.leaving} open={lastBtw.current} />}
     </div>
   );
 }

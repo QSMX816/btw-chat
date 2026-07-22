@@ -7,6 +7,7 @@ import { useT } from '../i18n';
 
 interface Props {
   onClose: () => void;
+  leaving?: boolean;
 }
 
 type Tab = 'appearance' | 'providers' | 'chat' | 'about';
@@ -20,13 +21,13 @@ const THEMES: { id: ThemeName; zh: string; en: string; grad: string }[] = [
   { id: 'rose', zh: '玫瑰', en: 'Rose', grad: 'linear-gradient(135deg,#ffd6e8,#ffb3c6,#ffe0e9)' },
 ];
 
-export const SettingsModal: React.FC<Props> = ({ onClose }) => {
+export const SettingsModal: React.FC<Props> = ({ onClose, leaving }) => {
   const [tab, setTab] = useState<Tab>('appearance');
   const { t } = useT();
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal glass-strong" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" data-leaving={leaving || undefined} onClick={onClose}>
+      <div className="modal glass-strong" data-leaving={leaving || undefined} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{t.settings}</div>
           <button className="btn btn-icon" onClick={onClose}><CloseIcon size={18} /></button>

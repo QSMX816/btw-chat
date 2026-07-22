@@ -13,7 +13,7 @@ function relTime(ts: number, t: ReturnType<typeof useT>['t']): string {
   return `${Math.floor(h / 24)} ${t.dayAgo}`;
 }
 
-export const Sidebar: React.FC<{ onClose: () => void; onOpenSettings: () => void }> = ({ onClose, onOpenSettings }) => {
+export const Sidebar: React.FC<{ leaving?: boolean; onClose: () => void; onOpenSettings: () => void }> = ({ leaving, onClose, onOpenSettings }) => {
   const { t } = useT();
   const conv = useConversations();
   const [q, setQ] = useState('');
@@ -31,8 +31,8 @@ export const Sidebar: React.FC<{ onClose: () => void; onOpenSettings: () => void
 
   return (
     <>
-      <div className="scrim" onClick={onClose} />
-      <div className="drawer">
+      <div className="scrim" onClick={onClose} data-leaving={leaving || undefined} />
+      <div className="drawer" data-leaving={leaving || undefined}>
         <div className="drawer-header">
           <div className="drawer-brand">
             <div className="drawer-logo">BTW</div>

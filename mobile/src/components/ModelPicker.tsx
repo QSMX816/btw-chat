@@ -10,7 +10,7 @@ function fmtCtx(n?: number): string {
   return Math.round(n / 1000) + 'k ctx';
 }
 
-export const ModelPicker: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const ModelPicker: React.FC<{ leaving?: boolean; onClose: () => void }> = ({ leaving, onClose }) => {
   const { t, lang } = useT();
   const cfg = useConfig();
   const conv = useConversations();
@@ -25,8 +25,8 @@ export const ModelPicker: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <>
-      <div className="scrim" onClick={onClose} />
-      <div className="bottom-sheet">
+      <div className="scrim" onClick={onClose} data-leaving={leaving || undefined} />
+      <div className="bottom-sheet" data-leaving={leaving || undefined}>
         <div className="bottom-sheet-handle" />
         <div className="bottom-sheet-title">{t.selectModel}</div>
         <div className="bottom-sheet-list">

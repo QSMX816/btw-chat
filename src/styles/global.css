@@ -218,7 +218,7 @@ body {
   cursor: pointer;
   font-family: inherit;
   border-radius: 12px;
-  transition: all 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 140ms var(--ease-out), background 140ms var(--ease-out), box-shadow 140ms var(--ease-out), color 140ms var(--ease-out);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -451,7 +451,7 @@ body {
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.14s;
+  transition: border-color 140ms var(--ease-out), background 140ms var(--ease-out), transform 140ms var(--ease-out);
   color: var(--text-primary);
 }
 [data-mode='dark'] .toolbar-pill,
@@ -635,7 +635,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.16s;
+  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out);
   user-select: none;
 }
 .btw-tag:hover {
@@ -705,8 +705,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.14s;
+  transition: background 140ms var(--ease-out), color 140ms var(--ease-out), transform 140ms var(--ease-out);
 }
+.composer-tool:active { transform: scale(0.94); }
 .composer-tool:hover {
   background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
@@ -731,8 +732,9 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.14s;
+  transition: transform 140ms var(--ease-out);
 }
+.send-btn:active { transform: scale(0.94); }
 .send-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -1421,11 +1423,11 @@ body {
 /* ============ 微动画 ============ */
 /* 消息进场：淡入 + 上浮（仅挂载时触发，流式追加 token 不重播）*/
 @keyframes msgIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .msg-row {
-  animation: msgIn 0.34s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation: msgIn 0.3s var(--ease-out) both;
 }
 
 /* AI 等待首字时的「三点打字」指示 */
@@ -1459,10 +1461,47 @@ body {
 }
 .empty-logo { animation: float 4.5s ease-in-out infinite; }
 
+/* 补齐按压反馈 */
+.toolbar-pill:active { transform: scale(0.97); }
+.conv-item { transition: background 140ms var(--ease-out), transform 140ms var(--ease-out); }
+.conv-item:active { transform: scale(0.99); }
+.theme-card { transition: transform 140ms var(--ease-out), border-color 140ms var(--ease-out); }
+.theme-card:active { transform: scale(0.97); }
+
+/* 模态框退场：与入场同路径、更快 */
+@keyframes modalOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.96) translateY(8px); }
+}
+.modal[data-leaving] { animation: modalOut 0.16s var(--ease-drawer) forwards; }
+.modal-overlay[data-leaving] { animation: fadeIn 0.16s ease reverse forwards; }
+
 /* 尊重系统「减少动态效果」偏好：关掉装饰性动画 */
 @media (prefers-reduced-motion: reduce) {
   .msg-row, .conv-item, .empty-logo, .typing-dots span,
   .jump-fab, .thinking-header.live .dot {
     animation: none !important;
+  }
+  .modal, .modal-overlay { animation-duration: 0.01ms !important; }
+}
+
+/* 降低透明度偏好：毛玻璃退化为近纯色 */
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-strong, .modal, .sidebar, .chat-area, .btw-panel,
+  .titlebar, .composer, .chat-toolbar {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* 高对比度偏好 */
+@media (prefers-contrast: more) {
+  :root {
+    --text-secondary: rgba(60, 60, 67, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.28);
+  }
+  [data-mode='dark']:not([data-theme='midnight']) {
+    --text-secondary: rgba(235, 235, 245, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.3);
   }
 }

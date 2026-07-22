@@ -33,13 +33,13 @@ const KINDS: { id: ProviderKind; label: string }[] = [
 
 type Tab = 'appearance' | 'providers' | 'chat' | 'about';
 
-export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const SettingsModal: React.FC<{ leaving?: boolean; onClose: () => void }> = ({ leaving, onClose }) => {
   const { t } = useT();
   const cfg = useConfig();
   const [tab, setTab] = useState<Tab>('providers');
 
   return (
-    <div className="sheet">
+    <div className="sheet" data-leaving={leaving || undefined}>
       <div className="sheet-bar">
         <button className="icon-btn" onClick={onClose}><BackIcon size={22} /></button>
         <div className="sheet-title">{t.settings}</div>
@@ -63,7 +63,7 @@ export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) =>
               <div className="empty-sub">{t.setAboutDesc}</div>
               <div className="empty-sub" style={{ marginTop: 8 }}>{t.setAboutProviders}</div>
               <div className="empty-sub" style={{ marginTop: 8 }}>{t.setAboutFeatures}</div>
-              <div style={{ marginTop: 14, fontSize: 12, color: 'var(--text-tertiary)' }}>{t.setAboutVersion} 1.1.0 · Android</div>
+              <div style={{ marginTop: 14, fontSize: 12, color: 'var(--text-tertiary)' }}>{t.setAboutVersion} 1.2.0 · Android</div>
             </div>
           </div>
         )}

@@ -7,10 +7,9 @@ import { Composer } from './Composer';
 import { BackIcon, XIcon, SparkIcon } from './Icons';
 import { Markdown } from './Markdown';
 
-export const BtwSheet: React.FC = () => {
+export const BtwSheet: React.FC<{ leaving?: boolean; open: { convId: string; btwId: string } | null }> = ({ leaving, open }) => {
   const { t } = useT();
   const conv = useConversations();
-  const open = conv.btwOpen;
   const parent = open ? conv.conversations.find((c) => c.id === open.convId) : undefined;
   const btw = parent?.btwConversations.find((b) => b.id === open?.btwId);
   const anchor = parent?.messages.find((m) => m.id === btw?.anchorMessageId);
@@ -28,7 +27,7 @@ export const BtwSheet: React.FC = () => {
   const close = () => conv.closeBtw();
 
   return (
-    <div className="sheet">
+    <div className="sheet" data-leaving={leaving || undefined}>
       <div className="sheet-bar">
         <button className="icon-btn" onClick={close}><BackIcon size={22} /></button>
         <div className="sheet-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

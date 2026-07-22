@@ -8,10 +8,12 @@ import { Logo } from './components/Logo';
 import { useConfig } from './stores/config';
 import { useChat } from './stores/conversations';
 import { useTheme } from './hooks/useTheme';
+import { usePresence } from './hooks/usePresence';
 import { useT } from './i18n';
 
 export default function App() {
   const [showSettings, setShowSettings] = useState(false);
+  const settingsPresence = usePresence(showSettings);
   const { loaded, load } = useConfig();
   const { loadList, list, activeId, newConversation, openConversation } = useChat();
   const { t } = useT();
@@ -52,7 +54,9 @@ export default function App() {
         <ChatPanel />
         <BtwPanel />
       </div>
-      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {settingsPresence.render && (
+        <SettingsModal leaving={settingsPresence.leaving} onClose={() => setShowSettings(false)} />
+      )}
     </div>
   );
 }
