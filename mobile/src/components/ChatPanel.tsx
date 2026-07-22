@@ -16,35 +16,29 @@ export const ChatPanel: React.FC = () => {
     conv.streaming,
   ]);
 
-  React.useEffect(() => { reset(); }, [active?.id, reset]);
+  React.useEffect(() => { reset(); /* eslint-disable-next-line */ }, [active?.id]);
 
   if (!active) return null;
 
-  const lastAssistantIdx = (() => {
-    for (let i = messages.length - 1; i >= 0; i--) if (messages[i].role === 'assistant') return i;
-    return -1;
-  })();
+  let lastAssistant = -1;
+  for (let i = messages.length - 1; i >= 0; i--) if (messages[i].role === 'assistant') { lastAssistant = i; break; }
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0 }}>
-      <div className="chat-scroll" ref={ref} onScroll={onScroll}>
+      <div className="chat" ref={ref} onScroll={onScroll}>
         {messages.map((m, i) => (
           <MessageBubble
             key={m.id}
             message={m}
             live={conv.streaming && i === messages.length - 1 && m.role === 'assistant'}
-            isLastAssistant={i === lastAssistantIdx}
+            isLastAssistant={i === lastAssistant}
             onAskBtw={() => conv.startBtw(active.id, m.id)}
             onOpenBtw={() => m.btwThreadId && conv.reopenBtw(active.id, m.btwThreadId)}
             onRegenerate={() => conv.regenerate()}
           />
         ))}
       </div>
-      {showJump && (
-        <button className="jump-fab" onClick={jump}>
-          <ArrowDownIcon size={18} />
-        </button>
-      )}
+      {showJump && <button className="jump" onClick={jump}><ArrowDownIcon size={18} /></button>}
     </div>
   );
 };

@@ -24,7 +24,6 @@ export default function App() {
   const [picker, setPicker] = useState(false);
   const [settings, setSettings] = useState(false);
 
-  // 首次加载本地配置 + 对话
   useEffect(() => {
     (async () => {
       await cfg.load();
@@ -34,7 +33,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 安卓返回键：先关覆盖层
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const h = CapApp.addListener('backButton', ({ canGoBack }) => {
@@ -51,8 +49,8 @@ export default function App() {
   if (!cfg.loaded || !conv.loaded) {
     return (
       <div className="app">
-        <div className="empty-state">
-          <div className="empty-logo">BTW</div>
+        <div className="empty">
+          <div className="empty-mark">BTW</div>
           <div className="empty-sub">{t.loadingApp}</div>
         </div>
       </div>
@@ -63,63 +61,49 @@ export default function App() {
   const provider = cfg.providers.find((p) => p.id === (active?.providerId || cfg.settings.activeProviderId));
   const model = provider?.models.find((m) => m.id === (active?.modelId || cfg.settings.activeModelId));
   const hasKey = !!provider?.apiKey;
-
   const { input, output } = estimateInputOutputTokens(active?.messages || [], cfg.settings.systemPrompt);
   const cost = estimateCostUsd(input, output, model);
+  const total = input + output;
   const tokLine = active && active.messages.length
-    ? `${(input + output) >= 1000 ? ((input + output) / 1000).toFixed(1) + 'k' : (input + output)} tok${cost ? ' · ' + (resolveLang(cfg.settings.language) === 'zh' ? '¥' + (cost * 7.2).toFixed(3) : '$' + cost.toFixed(4)) : ''}`
+    ? `${total >= 1000 ? (total / 1000).toFixed(1) + 'k' : total} tok${cost ? ' · ' + (resolveLang(cfg.settings.language) === 'zh' ? '¥' + (cost * 7.2).toFixed(3) : '$' + cost.toFixed(4)) : ''}`
     : '';
-
   const showEmpty = !active || active.messages.length === 0;
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="app">
-      <div className="appbar">
-        <button className="icon-btn" onClick={() => setDrawer(true)}><MenuIcon size={22} /></button>
-        <div className="appbar-title" onClick={() => setPicker(true)}>
-          <div className={`appbar-model ${hasKey ? '' : 'no-key'}`}>
-            <span className="model-pill-dot" />
-            <span>{model?.name || t.selectModel}</span>
-            <ChevronDownIcon size={16} />
-          </div>
-          <div className="appbar-provider">
-            {provider?.name || '—'}{hasKey ? (tokLine ? ' · ' + tokLine : '') : ` · ${t.noApiKeyMobile}`}
-          </div>
+      <div className="app">
+        <div className="appbar">
+          <button className="icon-btn" onClick={() => setDrawer(true)}><MenuIcon size={22} /></button>
+          <button className="appbar-center" onClick={() => setPicker(true)} style={{ background: 'none', border: 'none' }}>
+            <div className="appbar-model">
+              <span className={`dot-key ${hasKey ? '' : 'no'}`} />
+              <span className="label">{model?.name || t.selectModel}</span>
+              <ChevronDownIcon className="appbar-chevron" size={16} />
+            </div>
+            <div className="appbar-sub">{provider?.name || '—'}{hasKey ? (tokLine ? ' · ' + tokLine : '') : ` · ${t.noApiKeyMobile}`}</div>
+          </button>
+          <button className="icon-btn" onClick={() => conv.newConversation()}><PlusIcon size={22} /></button>
+          <button className="icon-btn" onClick={() => setSettings(true)}><GearIcon size={21} /></button>
         </div>
-        <button className="icon-btn" onClick={() => conv.newConversation()}><PlusIcon size={22} /></button>
-        <button className="icon-btn" onClick={() => setSettings(true)}><GearIcon size={21} /></button>
+
+        {showEmpty ? (
+          <div className="empty">
+            <div className="empty-mark">BTW</div>
+            <div className="empty-title">{t.chatWelcome}</div>
+            <div className="empty-sub">{t.chatWelcomeSub}</div>
+            <div className="empty-sub" style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center' }}><SparkIcon size={14} /> {t.chatBtwFeature}</div>
+          </div>
+        ) : <ChatPanel />}
+
+        <Composer variant="main" />
+
+        <AnimatePresence>
+          {drawer && <Sidebar onClose={() => setDrawer(false)} onOpenSettings={() => { setDrawer(false); setSettings(true); }} />}
+        </AnimatePresence>
+        <AnimatePresence>{picker && <ModelPicker onClose={() => setPicker(false)} />}</AnimatePresence>
+        <AnimatePresence>{settings && <SettingsModal onClose={() => setSettings(false)} />}</AnimatePresence>
+        <AnimatePresence>{conv.btwOpen && <BtwSheet open={conv.btwOpen} onClose={() => conv.closeBtw()} />}</AnimatePresence>
       </div>
-
-      {showEmpty ? (
-        <div className="empty-state">
-          <div className="empty-logo">BTW</div>
-          <div className="empty-title">{t.chatWelcome}</div>
-          <div className="empty-sub">{t.chatWelcomeSub}</div>
-          <div className="empty-sub" style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center' }}>
-            <SparkIcon size={14} /> {t.chatBtwFeature}
-          </div>
-        </div>
-      ) : (
-        <ChatPanel />
-      )}
-
-      <Composer variant="main" />
-
-      <AnimatePresence>
-        {drawer && (
-          <Sidebar
-            onClose={() => setDrawer(false)}
-            onOpenSettings={() => { setDrawer(false); setSettings(true); }}
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>{picker && <ModelPicker onClose={() => setPicker(false)} />}</AnimatePresence>
-      <AnimatePresence>{settings && <SettingsModal onClose={() => setSettings(false)} />}</AnimatePresence>
-      <AnimatePresence>
-        {conv.btwOpen && <BtwSheet open={conv.btwOpen} onClose={() => conv.closeBtw()} />}
-      </AnimatePresence>
-    </div>
     </MotionConfig>
   );
 }

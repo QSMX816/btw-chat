@@ -16,14 +16,13 @@ export function useTheme() {
     const isDark = settings.themeMode === 'dark' || (settings.themeMode === 'auto' && prefersDark);
     root.setAttribute('data-mode', isDark ? 'dark' : 'light');
 
-    // 同步状态栏（仅原生平台）
+    // 同步状态栏（仅原生平台），底色跟随各主题背景
     if (Capacitor.isNativePlatform()) {
       StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light }).catch(() => {});
-      // 状态栏底色跟随纯色背景，避免突兀
-      StatusBar.setBackgroundColor({ color: isDark ? '#1b1b22' : '#eef0f4' }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: isDark ? '#121317' : '#f5f6fa' }).catch(() => {});
     }
 
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', isDark ? '#1b1b22' : '#eef0f4');
+    if (meta) meta.setAttribute('content', isDark ? '#121317' : '#f5f6fa');
   }, [settings.theme, settings.themeMode, settings.fontScale]);
 }

@@ -14,149 +14,98 @@ export const Composer: React.FC<{ variant?: 'main' | 'btw' }> = ({ variant = 'ma
   const cfg = useConfig();
   const conv = useConversations();
   const [text, setText] = useState('');
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [docParsing, setDocParsing] = useState(false);
+  const [atts, setAtts] = useState<Attachment[]>([]);
+  const [parsing, setParsing] = useState(false);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const streaming = variant === 'btw' ? conv.btwStreaming : conv.streaming;
-  const activeConv = conv.conversations.find((c) => c.id === conv.activeId);
-  const contentMsgs = activeConv?.messages.filter((m) => m.content || m.role === 'user') ?? [];
-  const canRegenerate = variant === 'main' && contentMsgs.length >= 2 && !streaming;
+  const active = conv.conversations.find((c) => c.id === conv.activeId);
+  const contentMsgs = active?.messages.filter((m) => m.content || m.role === 'user') ?? [];
+  const canRegen = variant === 'main' && contentMsgs.length >= 2 && !streaming;
 
-  const autogrow = () => {
-    const el = taRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  const grow = () => {
+    const el = taRef.current; if (!el) return;
+    el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 140) + 'px';
   };
 
   const onFiles = async (files: FileList | null) => {
     if (!files?.length) return;
-    setDocParsing(true);
+    setParsing(true);
     for (const file of Array.from(files)) {
-      const att: Attachment = {
-        id: uuid(), name: file.name, type: file.type || 'application/octet-stream',
-        size: file.size, extracting: false,
-      };
+      const att: Attachment = { id: uuid(), name: file.name, type: file.type || 'application/octet-stream', size: file.size, extracting: false };
       if (isImage(file)) {
-        att.kind = 'image';
-        att.data = await readAsBase64(file);
+        att.kind = 'image'; att.data = await readB64(file);
+        setAtts((a) => [...a, att]);
       } else if (isDocument(file)) {
-        att.kind = 'document';
-        att.extracting = true;
-        setAttachments((a) => [...a, att]);
+        att.kind = 'document'; att.extracting = true;
+        setAtts((a) => [...a, att]);
         try {
           const r = await extractTextFromFile(file);
-          att.extractedText = r.text;
-          att.truncated = r.truncated;
-          att.pages = r.pages;
-        } catch (e: any) {
-          att.extractError = e?.message || 'failed';
-        } finally {
-          att.extracting = false;
-          setAttachments((a) => [...a]); // 触发更新
-        }
-        continue;
-      } else {
-        continue;
+          att.extractedText = r.text; att.truncated = r.truncated; att.pages = r.pages;
+        } catch (e: any) { att.extractError = e?.message || 'failed'; }
+        finally { att.extracting = false; setAtts((a) => [...a]); }
       }
-      setAttachments((a) => [...a, att]);
     }
-    setDocParsing(false);
+    setParsing(false);
   };
 
   const submit = () => {
-    const trimmed = text.trim();
-    if ((!trimmed && attachments.length === 0) || streaming || docParsing) return;
-    if (variant === 'btw') {
-      void conv.sendBtw(trimmed);
-    } else {
-      void conv.send(trimmed, attachments.length ? attachments : undefined);
-    }
-    setText('');
-    setAttachments([]);
-    requestAnimationFrame(autogrow);
+    const v = text.trim();
+    if ((!v && !atts.length) || streaming || parsing) return;
+    if (variant === 'btw') void conv.sendBtw(v); else void conv.send(v, atts.length ? atts : undefined);
+    setText(''); setAtts([]); requestAnimationFrame(grow);
   };
 
-  const stop = () => conv.cancel();
-
-  const removeAtt = (id: string) => setAttachments((a) => a.filter((x) => x.id !== id));
+  const rm = (id: string) => setAtts((a) => a.filter((x) => x.id !== id));
 
   return (
-    <div className="composer-wrap">
-      <div className="composer-inner">
-        <div className="composer" style={{ flex: 1, minWidth: 0 }}>
-          {attachments.length > 0 && (
-            <div className="attachments">
-              {attachments.map((a) => (
-                <div key={a.id} className="doc-chip" style={{ position: 'relative' }}>
-                  {a.kind === 'image' && a.data ? (
-                    <img className="attachment-thumb" src={`data:${a.type};base64,${a.data}`} alt={a.name} style={{ width: 40, height: 40 }} />
-                  ) : (
-                    <DocIcon size={20} className="doc-chip-icon" />
-                  )}
-                  <div className="doc-chip-main">
-                    <span className="doc-chip-name">{a.name}</span>
-                    <span className="doc-chip-meta">
-                      {a.extracting ? t.docParsing : a.extractError ? t.docFailed : a.kind === 'document' ? `${t.docParsed}${a.truncated ? ` · ${t.docTruncated}` : ''}` : ''}
-                    </span>
+    <div className="composer">
+      <div className="composer-card">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {atts.length > 0 && (
+            <div className="composer-atts">
+              {atts.map((a) => (
+                <div key={a.id} className="att">
+                  {a.kind === 'image' && a.data
+                    ? <img src={`data:${a.type};base64,${a.data}`} alt={a.name} />
+                    : <DocIcon size={18} />}
+                  <div className="att-main">
+                    <div className="att-name">{a.name}</div>
+                    <div className="att-meta">{a.extracting ? t.docParsing : a.extractError ? t.docFailed : a.kind === 'document' ? `${t.docParsed}${a.truncated ? ` · ${t.docTruncated}` : ''}` : ''}</div>
                   </div>
-                  <button className="attachment-x" onClick={() => removeAtt(a.id)}><XIcon size={13} /></button>
+                  <button className="att-x" onClick={() => rm(a.id)}><XIcon size={13} /></button>
                 </div>
               ))}
             </div>
           )}
           <textarea
             ref={taRef}
-            className="composer-input"
             placeholder={variant === 'btw' ? t.composerBtwPh : t.composerPh}
-            value={text}
-            rows={1}
-            onChange={(e) => { setText(e.target.value); autogrow(); }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey && cfg.settings.sendOnEnter) {
-                e.preventDefault();
-                submit();
-              }
-            }}
+            value={text} rows={1}
+            onChange={(e) => { setText(e.target.value); grow(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && cfg.settings.sendOnEnter) { e.preventDefault(); submit(); } }}
           />
         </div>
-        <div className="composer-tools">
-          {variant === 'main' && (
-            <>
-              <input ref={fileRef} type="file" accept={ACCEPT} multiple hidden onChange={(e) => onFiles(e.target.files)} />
-              <button className="tool-btn" onClick={() => fileRef.current?.click()} title={t.attach}>
-                <ClipIcon size={21} />
-              </button>
-              {canRegenerate && (
-                <button className="tool-btn" onClick={() => conv.regenerate()} title={t.regenerate}>
-                  <RefreshIcon size={20} />
-                </button>
-              )}
-            </>
-          )}
-          {streaming ? (
-            <button className="send-btn stop" onClick={stop}><StopIcon size={18} /></button>
-          ) : (
-            <button className="send-btn" onClick={submit} disabled={docParsing || (!text.trim() && attachments.length === 0)}>
-              <SendIcon size={19} />
-            </button>
-          )}
-        </div>
+        {variant === 'main' && (
+          <>
+            <input ref={fileRef} type="file" accept={ACCEPT} multiple hidden onChange={(e) => onFiles(e.target.files)} />
+            <button className="tool" onClick={() => fileRef.current?.click()} title={t.attach}><ClipIcon size={21} /></button>
+            {canRegen && <button className="tool" onClick={() => conv.regenerate()} title={t.regenerate}><RefreshIcon size={20} /></button>}
+          </>
+        )}
+        {streaming
+          ? <button className="send stop" onClick={() => conv.cancel()}><StopIcon size={18} /></button>
+          : <button className="send" onClick={submit} disabled={parsing || (!text.trim() && !atts.length)}><SendIcon size={19} /></button>}
       </div>
     </div>
   );
 };
 
-function readAsBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
+function readB64(file: File): Promise<string> {
+  return new Promise((res, rej) => {
     const fr = new FileReader();
-    fr.onload = () => {
-      const s = String(fr.result || '');
-      resolve(s.split(',')[1] || '');
-    };
-    fr.onerror = reject;
-    fr.readAsDataURL(file);
+    fr.onload = () => res(String(fr.result || '').split(',')[1] || '');
+    fr.onerror = rej; fr.readAsDataURL(file);
   });
 }
