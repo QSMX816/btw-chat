@@ -338,9 +338,7 @@ body {
   background: rgba(255, 255, 255, 0.06);
 }
 .conv-item.active {
-  background: var(--accent-grad);
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 .conv-item.active .conv-meta {
   color: rgba(255, 255, 255, 0.8);
@@ -877,6 +875,7 @@ body {
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 .modal-tab {
+  position: relative;
   padding: 10px 16px;
   border: none;
   background: transparent;
@@ -885,7 +884,6 @@ body {
   font-size: 13.5px;
   font-weight: 550;
   color: var(--text-secondary);
-  border-bottom: 2px solid transparent;
   margin-bottom: -1px;
 }
 .modal-tab:hover {
@@ -893,7 +891,6 @@ body {
 }
 .modal-tab.active {
   color: var(--accent);
-  border-bottom-color: var(--accent);
 }
 
 .setting-group {
@@ -1421,14 +1418,7 @@ body {
 }
 
 /* ============ 微动画 ============ */
-/* 消息进场：淡入 + 上浮（仅挂载时触发，流式追加 token 不重播）*/
-@keyframes msgIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.msg-row {
-  animation: msgIn 0.3s var(--ease-out) both;
-}
+/* 消息进场 / 列表 / 模态进出场已由 framer-motion 弹簧接管 */
 
 /* AI 等待首字时的「三点打字」指示 */
 @keyframes dotBounce {
@@ -1444,15 +1434,7 @@ body {
 .typing-dots span:nth-child(2) { animation-delay: 0.16s; }
 .typing-dots span:nth-child(3) { animation-delay: 0.32s; }
 
-/* 对话列表错峰淡入（按 --i 延迟）*/
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.conv-item {
-  animation: fadeInUp 0.3s ease both;
-  animation-delay: calc(var(--i, 0) * 22ms);
-}
+/* 对话列表进场已改由 framer-motion 处理 */
 
 /* 空状态 logo 轻柔悬浮 */
 @keyframes float {
@@ -1461,28 +1443,26 @@ body {
 }
 .empty-logo { animation: float 4.5s ease-in-out infinite; }
 
-/* 补齐按压反馈 */
+/* 滑动高亮（layoutId 在条目间平滑滑动）*/
+.conv-item { position: relative; }
+.conv-item-main, .conv-actions { position: relative; z-index: 1; }
+.conv-active-pill { position: absolute; inset: 0; border-radius: 12px; background: var(--accent-grad); box-shadow: 0 4px 12px rgba(0,0,0,0.14); z-index: 0; }
+
+/* 补齐按压反馈（其余可点元素由 framer whileTap 处理）*/
 .toolbar-pill:active { transform: scale(0.97); }
-.conv-item { transition: background 140ms var(--ease-out), transform 140ms var(--ease-out); }
-.conv-item:active { transform: scale(0.99); }
 .theme-card { transition: transform 140ms var(--ease-out), border-color 140ms var(--ease-out); }
 .theme-card:active { transform: scale(0.97); }
 
-/* 模态框退场：与入场同路径、更快 */
-@keyframes modalOut {
-  from { opacity: 1; transform: scale(1) translateY(0); }
-  to { opacity: 0; transform: scale(0.96) translateY(8px); }
-}
-.modal[data-leaving] { animation: modalOut 0.16s var(--ease-drawer) forwards; }
-.modal-overlay[data-leaving] { animation: fadeIn 0.16s ease reverse forwards; }
+/* 设置标签滑动下划线 */
+.modal-tab { position: relative; }
+.modal-tab-underline { position: absolute; left: 16%; right: 16%; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent); }
 
-/* 尊重系统「减少动态效果」偏好：关掉装饰性动画 */
+/* 尊重系统「减少动态效果」偏好：关掉装饰性动画（framer 已读 reducedMotion=user）*/
 @media (prefers-reduced-motion: reduce) {
   .msg-row, .conv-item, .empty-logo, .typing-dots span,
   .jump-fab, .thinking-header.live .dot {
     animation: none !important;
   }
-  .modal, .modal-overlay { animation-duration: 0.01ms !important; }
 }
 
 /* 降低透明度偏好：毛玻璃退化为近纯色 */

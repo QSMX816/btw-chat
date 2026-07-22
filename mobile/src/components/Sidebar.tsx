@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useConversations } from '../stores/conversations';
 import { useT } from '../i18n';
+import { motion, drawerV, scrimV, springSoft, shouldDismiss } from './motion';
 import { PlusIcon, GearIcon, SearchIcon, TrashIcon, PinIcon, XIcon, SparkIcon } from './Icons';
 
 function relTime(ts: number, t: ReturnType<typeof useT>['t']): string {
@@ -13,7 +15,7 @@ function relTime(ts: number, t: ReturnType<typeof useT>['t']): string {
   return `${Math.floor(h / 24)} ${t.dayAgo}`;
 }
 
-export const Sidebar: React.FC<{ leaving?: boolean; onClose: () => void; onOpenSettings: () => void }> = ({ leaving, onClose, onOpenSettings }) => {
+export const Sidebar: React.FC<{ onClose: () => void; onOpenSettings: () => void }> = ({ onClose, onOpenSettings }) => {
   const { t } = useT();
   const conv = useConversations();
   const [q, setQ] = useState('');
@@ -31,8 +33,19 @@ export const Sidebar: React.FC<{ leaving?: boolean; onClose: () => void; onOpenS
 
   return (
     <>
-      <div className="scrim" onClick={onClose} data-leaving={leaving || undefined} />
-      <div className="drawer" data-leaving={leaving || undefined}>
+      <motion.div className="scrim" variants={scrimV} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} onClick={onClose} />
+      <motion.div
+        className="drawer"
+        variants={drawerV}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        transition={springSoft}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.18}
+        onDragEnd={(e, info) => { if (shouldDismiss(e, info, 'x', 90, 500)) onClose(); }}
+      >
         <div className="drawer-header">
           <div className="drawer-brand">
             <div className="drawer-logo">BTW</div>
@@ -44,12 +57,14 @@ export const Sidebar: React.FC<{ leaving?: boolean; onClose: () => void; onOpenS
           <button className="icon-btn" onClick={onClose}><XIcon size={22} /></button>
         </div>
 
-        <button
+        <motion.button
           className="drawer-new"
+          whileTap={{ scale: 0.97 }}
+          transition={springSoft}
           onClick={() => { conv.newConversation(); onClose(); }}
         >
           <PlusIcon size={20} /> {t.sidebarNew}
-        </button>
+        </motion.button>
 
         <input
           className="drawer-search"
@@ -64,41 +79,57 @@ export const Sidebar: React.FC<{ leaving?: boolean; onClose: () => void; onOpenS
               {q ? t.sidebarNoMatch : t.sidebarEmpty}
             </div>
           )}
-          {list.map((c, idx) => (
-            <div
-              key={c.id}
-              className={`conv-item ${c.id === conv.activeId ? 'active' : ''}`}
-              style={{ ['--i' as string]: Math.min(idx, 8) } as React.CSSProperties}
-              onClick={() => open(c.id)}
-            >
-              <div className="conv-item-main">
-                <div className="conv-item-title">{c.title}{c.pinned && <span className="conv-pin"> 📌</span>}</div>
-                <div className="conv-meta">
-                  {relTime(c.updatedAt, t)} · {c.messages.length} {t.msgs}
-                  {c.btwConversations.some((b) => !b.closed) && <SparkIcon size={11} />}
+          <AnimateList>
+            {list.map((c, idx) => (
+              <motion.div
+                key={c.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...springSoft, delay: Math.min(idx, 8) * 0.03 }}
+                className={`conv-item ${c.id === conv.activeId ? 'active' : ''}`}
+                onClick={() => open(c.id)}
+              >
+                {c.id === conv.activeId && <motion.div layoutId="conv-active" className="conv-active-pill" transition={springSoft} />}
+                <div className="conv-item-main">
+                  <div className="conv-item-title">{c.title}{c.pinned && <span className="conv-pin"> 📌</span>}</div>
+                  <div className="conv-meta">
+                    {relTime(c.updatedAt, t)} · {c.messages.length} {t.msgs}
+                    {c.btwConversations.some((b) => !b.closed) && <SparkIcon size={11} />}
+                  </div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: 2 }} onClick={(e) => e.stopPropagation()}>
-                <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => rename(c)} title={t.rename}>
-                  <span style={{ fontSize: 13 }}>✎</span>
-                </button>
-                <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => conv.togglePin(c.id)} title={c.pinned ? t.unpin : t.pin}>
-                  <PinIcon size={16} />
-                </button>
-                <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => del(c.id)} title={t.delete}>
-                  <TrashIcon size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+                <div className="conv-actions" onClick={(e) => e.stopPropagation()}>
+                  <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => rename(c)} title={t.rename}>
+                    <span style={{ fontSize: 13 }}>✎</span>
+                  </button>
+                  <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => conv.togglePin(c.id)} title={c.pinned ? t.unpin : t.pin}>
+                    <PinIcon size={16} />
+                  </button>
+                  <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => del(c.id)} title={t.delete}>
+                    <TrashIcon size={16} />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimateList>
         </div>
 
         <div className="drawer-footer">
-          <button className="drawer-new" style={{ background: 'var(--glass-bg)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }} onClick={() => { onOpenSettings(); onClose(); }}>
+          <motion.button
+            className="drawer-new"
+            style={{ background: 'var(--glass-bg)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
+            whileTap={{ scale: 0.97 }}
+            transition={springSoft}
+            onClick={() => onOpenSettings()}
+          >
             <GearIcon size={20} /> {t.settings}
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };
+
+// 让列表项支持退场动画
+const AnimateList: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AnimatePresence initial={false}>{children}</AnimatePresence>
+);

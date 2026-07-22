@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, bottomSheetV, scrimV, springSoft } from './motion';
 import { useConfig } from '../stores/config';
 import { useConversations } from '../stores/conversations';
 import { useT, formatPricePerM } from '../i18n';
@@ -10,7 +11,7 @@ function fmtCtx(n?: number): string {
   return Math.round(n / 1000) + 'k ctx';
 }
 
-export const ModelPicker: React.FC<{ leaving?: boolean; onClose: () => void }> = ({ leaving, onClose }) => {
+export const ModelPicker: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t, lang } = useT();
   const cfg = useConfig();
   const conv = useConversations();
@@ -25,8 +26,8 @@ export const ModelPicker: React.FC<{ leaving?: boolean; onClose: () => void }> =
 
   return (
     <>
-      <div className="scrim" onClick={onClose} data-leaving={leaving || undefined} />
-      <div className="bottom-sheet" data-leaving={leaving || undefined}>
+      <motion.div className="scrim" variants={scrimV} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} onClick={onClose} />
+      <motion.div className="bottom-sheet" variants={bottomSheetV} initial="initial" animate="animate" exit="exit" transition={springSoft}>
         <div className="bottom-sheet-handle" />
         <div className="bottom-sheet-title">{t.selectModel}</div>
         <div className="bottom-sheet-list">
@@ -42,11 +43,14 @@ export const ModelPicker: React.FC<{ leaving?: boolean; onClose: () => void }> =
                 const isActive = (active?.modelId || cfg.settings.activeModelId) === m.id;
                 const price = formatPricePerM(m.inputPricePerM || 0, lang);
                 return (
-                  <div
+                  <motion.div
                     key={m.id}
                     className={`model-row ${isActive ? 'active' : ''}`}
+                    whileTap={{ scale: 0.98 }}
+                    transition={springSoft}
                     onClick={() => pick(p.id, m.id)}
                   >
+                    {isActive && <motion.div layoutId="model-active" className="model-active-pill" transition={springSoft} />}
                     <div className="model-row-main">
                       <div className="model-row-name">{m.name}</div>
                       <div className="model-row-meta">
@@ -58,13 +62,13 @@ export const ModelPicker: React.FC<{ leaving?: boolean; onClose: () => void }> =
                       {m.supportsVision && <span className="flag-chip">👁</span>}
                     </div>
                     {isActive && <CheckIcon size={18} className="model-row-check" />}
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };

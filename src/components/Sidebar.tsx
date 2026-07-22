@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, springSoft } from './motion';
 import { useChat } from '../stores/conversations';
 import { PlusIcon, SearchIcon, TrashIcon, PinIcon, ChatIcon } from './Icons';
 import { Logo } from './Logo';
@@ -52,13 +53,17 @@ export const Sidebar: React.FC = () => {
           </div>
         )}
         {filtered.map((c, idx) => (
-          <div
+          <motion.div
             key={c.id}
             className={`conv-item ${c.id === activeId ? 'active' : ''}`}
-            style={{ ['--i' as string]: Math.min(idx, 8) } as React.CSSProperties}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...springSoft, delay: Math.min(idx, 8) * 0.03 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => openConversation(c.id)}
           >
-            {c.pinned && <PinIcon size={11} style={{ opacity: 0.8 }} />}
+            {c.id === activeId && <motion.div layoutId="conv-active" className="conv-active-pill" transition={springSoft} />}
+            {c.pinned && <PinIcon size={11} style={{ opacity: 0.8, position: 'relative', zIndex: 1 }} />}
             <div className="conv-item-main">
               <div className="conv-item-title">{c.title}</div>
               <div className="conv-meta">
@@ -96,7 +101,7 @@ export const Sidebar: React.FC = () => {
                 {confirmId === c.id ? <span style={{ fontSize: 9 }}>{t.confirmAgain}</span> : <TrashIcon size={13} />}
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 

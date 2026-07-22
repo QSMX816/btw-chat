@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, msgV, spring } from './motion';
 import { Message } from '../types';
 import { Markdown } from './Markdown';
 import { BrainIcon, ChatIcon, ChevronDown } from './Icons';
@@ -26,7 +27,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
   const showBtwTag = !isBtw && !isUser && linkedBtw && openBtwId !== linkedBtw.id;
 
   return (
-    <div className={`msg-row ${message.role}`}>
+    <motion.div className={`msg-row ${message.role}`} variants={msgV} initial="initial" animate="animate" transition={spring}>
       <div style={{ display: 'flex', gap: 10, width: '100%', flexDirection: isUser ? 'row-reverse' : 'row' }}>
         <div className={`msg-avatar ${isUser ? 'user' : 'ai'}`}>
           {isUser ? t.msgMe : t.msgBtw}
@@ -112,6 +113,6 @@ export const MessageBubble: React.FC<Props> = ({ message, isBtw }) => {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

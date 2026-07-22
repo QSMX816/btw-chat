@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, sheetV, springSoft } from './motion';
 import { useConversations } from '../stores/conversations';
 import { useT } from '../i18n';
 import { useFollowScroll } from '../hooks/useFollowScroll';
@@ -7,7 +8,7 @@ import { Composer } from './Composer';
 import { BackIcon, XIcon, SparkIcon } from './Icons';
 import { Markdown } from './Markdown';
 
-export const BtwSheet: React.FC<{ leaving?: boolean; open: { convId: string; btwId: string } | null }> = ({ leaving, open }) => {
+export const BtwSheet: React.FC<{ open: { convId: string; btwId: string } | null; onClose: () => void }> = ({ open, onClose }) => {
   const { t } = useT();
   const conv = useConversations();
   const parent = open ? conv.conversations.find((c) => c.id === open.convId) : undefined;
@@ -24,17 +25,15 @@ export const BtwSheet: React.FC<{ leaving?: boolean; open: { convId: string; btw
 
   if (!open || !btw) return null;
 
-  const close = () => conv.closeBtw();
-
   return (
-    <div className="sheet" data-leaving={leaving || undefined}>
+    <motion.div className="sheet" variants={sheetV} initial="initial" animate="animate" exit="exit" transition={springSoft}>
       <div className="sheet-bar">
-        <button className="icon-btn" onClick={close}><BackIcon size={22} /></button>
+        <button className="icon-btn" onClick={onClose}><BackIcon size={22} /></button>
         <div className="sheet-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span className="btw-badge"><SparkIcon size={11} /> {t.msgBtw}</span>
           <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{t.btwChat}</span>
         </div>
-        <button className="icon-btn" onClick={close} title={t.btwCloseHint}><XIcon size={20} /></button>
+        <button className="icon-btn" onClick={onClose} title={t.btwCloseHint}><XIcon size={20} /></button>
       </div>
 
       <div className="chat-scroll" ref={ref} onScroll={onScroll} style={{ position: 'relative' }}>
@@ -72,6 +71,6 @@ export const BtwSheet: React.FC<{ leaving?: boolean; open: { convId: string; btw
 
       {showJump && <button className="jump-fab" onClick={jump}>↓</button>}
       <Composer variant="btw" />
-    </div>
+    </motion.div>
   );
 };

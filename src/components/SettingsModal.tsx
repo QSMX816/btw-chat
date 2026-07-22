@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, modalV, scrimV, springSoft } from './motion';
 import { useConfig } from '../stores/config';
 import { Provider, ThemeName, ThemeMode, ProviderKind, ModelConfig } from '../types';
 import { CloseIcon, CheckIcon, PlusIcon, ChevronDown, SearchIcon } from './Icons';
@@ -7,7 +8,6 @@ import { useT } from '../i18n';
 
 interface Props {
   onClose: () => void;
-  leaving?: boolean;
 }
 
 type Tab = 'appearance' | 'providers' | 'chat' | 'about';
@@ -21,22 +21,30 @@ const THEMES: { id: ThemeName; zh: string; en: string; grad: string }[] = [
   { id: 'rose', zh: '玫瑰', en: 'Rose', grad: 'linear-gradient(135deg,#ffd6e8,#ffb3c6,#ffe0e9)' },
 ];
 
-export const SettingsModal: React.FC<Props> = ({ onClose, leaving }) => {
+export const SettingsModal: React.FC<Props> = ({ onClose }) => {
   const [tab, setTab] = useState<Tab>('appearance');
   const { t } = useT();
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'appearance', label: t.setTabAppearance },
+    { id: 'providers', label: t.setTabProviders },
+    { id: 'chat', label: t.setTabChat },
+    { id: 'about', label: t.setTabAbout },
+  ];
 
   return (
-    <div className="modal-overlay" data-leaving={leaving || undefined} onClick={onClose}>
-      <div className="modal glass-strong" data-leaving={leaving || undefined} onClick={(e) => e.stopPropagation()}>
+    <motion.div className="modal-overlay" variants={scrimV} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }} onClick={onClose}>
+      <motion.div className="modal glass-strong" variants={modalV} initial="initial" animate="animate" exit="exit" transition={springSoft} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{t.settings}</div>
           <button className="btn btn-icon" onClick={onClose}><CloseIcon size={18} /></button>
         </div>
         <div className="modal-tabs">
-          <button className={`modal-tab ${tab === 'appearance' ? 'active' : ''}`} onClick={() => setTab('appearance')}>{t.setTabAppearance}</button>
-          <button className={`modal-tab ${tab === 'providers' ? 'active' : ''}`} onClick={() => setTab('providers')}>{t.setTabProviders}</button>
-          <button className={`modal-tab ${tab === 'chat' ? 'active' : ''}`} onClick={() => setTab('chat')}>{t.setTabChat}</button>
-          <button className={`modal-tab ${tab === 'about' ? 'active' : ''}`} onClick={() => setTab('about')}>{t.setTabAbout}</button>
+          {tabs.map((tb) => (
+            <button key={tb.id} className={`modal-tab ${tab === tb.id ? 'active' : ''}`} onClick={() => setTab(tb.id)}>
+              {tb.label}
+              {tab === tb.id && <motion.div layoutId="modal-tab-underline" className="modal-tab-underline" transition={springSoft} />}
+            </button>
+          ))}
         </div>
         <div className="modal-body">
           {tab === 'appearance' && <AppearanceTab />}
@@ -44,8 +52,8 @@ export const SettingsModal: React.FC<Props> = ({ onClose, leaving }) => {
           {tab === 'chat' && <ChatTab />}
           {tab === 'about' && <AboutTab />}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

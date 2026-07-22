@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, MotionConfig } from 'framer-motion';
 import { TitleBar } from './components/TitleBar';
 import { Sidebar } from './components/Sidebar';
 import { ChatPanel } from './components/ChatPanel';
@@ -8,12 +9,10 @@ import { Logo } from './components/Logo';
 import { useConfig } from './stores/config';
 import { useChat } from './stores/conversations';
 import { useTheme } from './hooks/useTheme';
-import { usePresence } from './hooks/usePresence';
 import { useT } from './i18n';
 
 export default function App() {
   const [showSettings, setShowSettings] = useState(false);
-  const settingsPresence = usePresence(showSettings);
   const { loaded, load } = useConfig();
   const { loadList, list, activeId, newConversation, openConversation } = useChat();
   const { t } = useT();
@@ -47,16 +46,19 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <TitleBar onOpenSettings={() => setShowSettings(true)} />
-      <div className="app-body">
-        <Sidebar />
-        <ChatPanel />
-        <BtwPanel />
+    <MotionConfig reducedMotion="user">
+      <div className="app">
+        <TitleBar onOpenSettings={() => setShowSettings(true)} />
+        <div className="app-body">
+          <Sidebar />
+          <ChatPanel />
+          <BtwPanel />
+        </div>
+        <AnimatePresence>
+          {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+        </AnimatePresence>
       </div>
-      {settingsPresence.render && (
-        <SettingsModal leaving={settingsPresence.leaving} onClose={() => setShowSettings(false)} />
-      )}
-    </div>
+    </MotionConfig>
   );
 }
+

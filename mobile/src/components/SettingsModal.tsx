@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { v4 as uuid } from 'uuid';
+import { motion, sheetV, springSoft } from './motion';
 import { useConfig } from '../stores/config';
 import { useT } from '../i18n';
 import { ThemeName, ThemeMode, Provider, ProviderKind, ModelConfig } from '../types';
@@ -33,22 +34,30 @@ const KINDS: { id: ProviderKind; label: string }[] = [
 
 type Tab = 'appearance' | 'providers' | 'chat' | 'about';
 
-export const SettingsModal: React.FC<{ leaving?: boolean; onClose: () => void }> = ({ leaving, onClose }) => {
+export const SettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t } = useT();
   const cfg = useConfig();
   const [tab, setTab] = useState<Tab>('providers');
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'appearance', label: t.setTabAppearance },
+    { id: 'providers', label: t.setTabProviders },
+    { id: 'chat', label: t.setTabChat },
+    { id: 'about', label: t.setTabAbout },
+  ];
 
   return (
-    <div className="sheet" data-leaving={leaving || undefined}>
+    <motion.div className="sheet" variants={sheetV} initial="initial" animate="animate" exit="exit" transition={springSoft}>
       <div className="sheet-bar">
         <button className="icon-btn" onClick={onClose}><BackIcon size={22} /></button>
         <div className="sheet-title">{t.settings}</div>
       </div>
       <div className="settings-tabs">
-        <button className={`settings-tab ${tab === 'appearance' ? 'active' : ''}`} onClick={() => setTab('appearance')}>{t.setTabAppearance}</button>
-        <button className={`settings-tab ${tab === 'providers' ? 'active' : ''}`} onClick={() => setTab('providers')}>{t.setTabProviders}</button>
-        <button className={`settings-tab ${tab === 'chat' ? 'active' : ''}`} onClick={() => setTab('chat')}>{t.setTabChat}</button>
-        <button className={`settings-tab ${tab === 'about' ? 'active' : ''}`} onClick={() => setTab('about')}>{t.setTabAbout}</button>
+        {tabs.map((tb) => (
+          <button key={tb.id} className={`settings-tab ${tab === tb.id ? 'active' : ''}`} onClick={() => setTab(tb.id)}>
+            {tb.label}
+            {tab === tb.id && <motion.div layoutId="set-tab-underline" className="settings-tab-underline" transition={springSoft} />}
+          </button>
+        ))}
       </div>
 
       <div className="sheet-body">
@@ -63,12 +72,12 @@ export const SettingsModal: React.FC<{ leaving?: boolean; onClose: () => void }>
               <div className="empty-sub">{t.setAboutDesc}</div>
               <div className="empty-sub" style={{ marginTop: 8 }}>{t.setAboutProviders}</div>
               <div className="empty-sub" style={{ marginTop: 8 }}>{t.setAboutFeatures}</div>
-              <div style={{ marginTop: 14, fontSize: 12, color: 'var(--text-tertiary)' }}>{t.setAboutVersion} 1.2.0 · Android</div>
+              <div style={{ marginTop: 14, fontSize: 12, color: 'var(--text-tertiary)' }}>{t.setAboutVersion} 1.3.0 · Android</div>
             </div>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

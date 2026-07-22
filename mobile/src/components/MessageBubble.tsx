@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, msgV, spring } from './motion';
 import { Message } from '../types';
 import { Markdown } from './Markdown';
 import { useT } from '../i18n';
@@ -32,7 +33,7 @@ export const MessageBubble: React.FC<Props> = ({
   };
 
   return (
-    <div className={`msg-row ${isUser ? 'user' : 'assistant'}`}>
+    <motion.div className={`msg-row ${isUser ? 'user' : 'assistant'}`} variants={msgV} initial="initial" animate="animate" transition={spring}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', alignSelf: isUser ? 'flex-end' : 'flex-start' }}>
         {!isUser && <div className="msg-avatar ai">AI</div>}
         {isUser && <div className="msg-avatar user" style={{ order: 1 }}>{t.msgMe}</div>}
@@ -95,6 +96,6 @@ export const MessageBubble: React.FC<Props> = ({
           )}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
